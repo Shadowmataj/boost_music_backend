@@ -1,14 +1,19 @@
-import { data } from "./data.js"
+import { stringify } from "querystring"
+import fs from "fs"
+import config from "./config.js"
 
-
+// search for file "./src/products_list.json", it creates it if doesn't exist
+if (!fs.existsSync(config.THIS_PATH_PRODUCTS)) {
+    fs.writeFileSync(config.THIS_PATH_PRODUCTS, JSON.stringify([]))
+}
 // create a class ProductManager to manage all the products we need.
 export class ProductManagers {
     // the constructor creates all the elements we need in our product manager 
     constructor() {
-        this.products = data //read the file and asign the data to this.products
+        this.products = JSON.parse(fs.readFileSync(config.THIS_PATH_PRODUCTS))
         this.id = Math.max(...this.products.map(item => item.id))//identifies the max id number in our data base and asign it to avoid duplication
     }
-
+    
     // async function to add products into de data base
     addProduct(title, description, price, thumbnails, code, stock, status, category) {
 
@@ -27,6 +32,7 @@ export class ProductManagers {
                 category: category
             }
             this.products.push(item)
+            fs.writeFileSync("./src/products_list.json", JSON.stringify(this.products))
             return true
         } else {
             return false
@@ -39,8 +45,7 @@ export class ProductManagers {
     }
     //funtion to get a specific product by id
     getProductbyId(pid) {
-        const newList = [...this.products]
-        const item = newList.find(resp => resp.id == pid)
+        const item = this.products.find(resp => resp.id == pid)
         return item
     }
     //async function to erase a product in our database
@@ -48,6 +53,7 @@ export class ProductManagers {
         const product = this.products.some((item => item.id === id))
         if (product) {
             this.products = this.products.filter(resp => resp.id !== id)
+            fs.writeFileSync("./src/products_list.json", JSON.stringify(this.products))
             return true
         } else {
             return false
@@ -75,6 +81,7 @@ export class ProductManagers {
             if (!(product.category === category || category === "N/A")) product.category = category
 
             this.products.splice(index, 1, product)
+            fs.writeFileSync("./src/products_list.json", JSON.stringify(this.products))
             return true
         } else {
             return false
