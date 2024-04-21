@@ -32,7 +32,7 @@ export class ProductManagers {
                 category: category
             }
             this.products.push(item)
-            fs.writeFileSync("./src/products_list.json", JSON.stringify(this.products))
+            fs.writeFileSync(config.THIS_PATH_PRODUCTS, JSON.stringify(this.products))
             return true
         } else {
             return false
@@ -53,7 +53,7 @@ export class ProductManagers {
         const product = this.products.some((item => item.id === id))
         if (product) {
             this.products = this.products.filter(resp => resp.id !== id)
-            fs.writeFileSync("./src/products_list.json", JSON.stringify(this.products))
+            fs.writeFileSync(config.THIS_PATH_PRODUCTS, JSON.stringify(this.products))
             return true
         } else {
             return false
@@ -81,7 +81,7 @@ export class ProductManagers {
             if (!(product.category === category || category === "N/A")) product.category = category
 
             this.products.splice(index, 1, product)
-            fs.writeFileSync("./src/products_list.json", JSON.stringify(this.products))
+            fs.writeFileSync(config.THIS_PATH_PRODUCTS, JSON.stringify(this.products))
             return true
         } else {
             return false

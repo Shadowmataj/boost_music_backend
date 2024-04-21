@@ -31,7 +31,7 @@ cartRouter.post("/:cid/product/:pid", async (req, res) => {
     const { quantity } = req.body
     const resp = await cm.updateCart(cid, id, quantity)
     resp ?
-        res.status(200).send({ status: "OK", cartId: resp.id, products: resp.products }) :
+        res.status(200).send({ status: "El carrito fue actualizado de forma exitosa"}) :
         res.status(400).send({ status: `No se pudo agregar el producto ya que el carrito o el producto no existe.` })
 })
 
