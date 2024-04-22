@@ -1,7 +1,7 @@
-import express, { urlencoded } from "express"
+import express from "express"
 import config from "./config.js"
-import productsRoutes from "./routes/products.routes.js"
 import cartRoutes from "./routes/cart.routes.js"
+import productsRoutes from "./routes/products.routes.js"
 
 
 const app = express()

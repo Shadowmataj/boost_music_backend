@@ -60,9 +60,9 @@ export class CartsManagers {
                     quantity: quantity
                 }
                 this.cartList[cartIndex].products.push(item)
-            } 
+            }
             this.cartList[cartIndex].date = this.cartList[cartIndex].date = moment().format()
-            fs.writeFileSync(config.THIS_PATH_CARTS,JSON.stringify(this.cartList))
+            fs.writeFileSync(config.THIS_PATH_CARTS, JSON.stringify(this.cartList))
         }
         return cartIndex != -1 && productExists
     }
