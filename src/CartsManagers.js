@@ -53,7 +53,8 @@ export class CartsManagers {
         if (cartIndex != -1 && productExists) {
             const productIndex = this.cartList[cartIndex].products.findIndex(item => item.id === pid)
             if (productIndex != -1) {
-                this.cartList[cartIndex].products[productIndex].quantity = this.cartList[cartIndex].products[productIndex].quantity + quantity
+                const cart = this.cartList[cartIndex].products[productIndex]
+                cart.quantity = cart.quantity + quantity
             } else {
                 const item = {
                     id: pid,
