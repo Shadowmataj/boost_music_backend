@@ -1,0 +1,8 @@
+<div>
+    <h1>Lista de productos</h1>
+    <ul class="list-group list-group-numbered">
+    {{#each products}}
+        <li class="list-group-item">{{title}}, ${{price}}, {{stock}}, {{category}}, {{code}}</li>
+    {{/each}}
+    </ul>
+</div>
