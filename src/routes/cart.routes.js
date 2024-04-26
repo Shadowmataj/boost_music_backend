@@ -6,6 +6,8 @@ import { CartsManagers } from "../CartsManagers.js";
 const cartRouter = Router()
 const cm = new CartsManagers()
 
+
+// endpoint to get the information of a specific cart  
 cartRouter.get("/:cid", async (req, res) => {
     const id = req.params.cid
     const resp = await cm.getCartById(id)
@@ -14,6 +16,7 @@ cartRouter.get("/:cid", async (req, res) => {
         res.status(400).send({ status: `El carrito no existe.` })
 })
 
+// endpoint to create a new cart
 cartRouter.post("/", async (req, res) => {
     const body = req.body
     let resp = null
@@ -25,6 +28,7 @@ cartRouter.post("/", async (req, res) => {
     }
 })
 
+// endpoint to add products or modify a specific cart
 cartRouter.post("/:cid/product/:pid", async (req, res) => {
     const { pid, cid  } = req.params
     const id = +pid

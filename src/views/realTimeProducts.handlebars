@@ -1,11 +1,12 @@
 <div>
     <h1>Lista de productos</h1>
+    {{!-- In the first instance, it gets the products list from the endpoint to deploy every one --}}
     <ul class="list-group list-group-numbered" id="list-group-container">
     {{#each products}}
         <li class="list-group-item">{{title}}, ${{price}}, {{stock}}, {{category}}, {{code}}</li>
     {{/each}}
     </ul>
 </div>
-
+{{!-- setting the socket  --}}
 <script src="/socket.io/socket.io.js"></script>
 <script src="/static/js/realTimeProducts.js"></script>

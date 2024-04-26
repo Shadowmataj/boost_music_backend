@@ -15,6 +15,7 @@ app.engine("handlebars", handlebars.engine())
 app.set("views", `${config.DIRNAME}/views`)
 app.set("view engine", "handlebars")
 
+
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
@@ -30,14 +31,17 @@ const httpServer = app.listen(config.PORT, ()=> console.log(`Hola, servidor arri
 
 const socketServer = new Server(httpServer)
 
+// stablish this variable to use it on another module
 app.set("socketServer", socketServer)
 
-// listening the new connection from a new socket
+// listening the connection from a new socket
 socketServer.on("connection", socket => {
     console.log(`Nuevo cliente conectado ${socket.id}`)
+    // the first contact between client and server
     socket.on("handshake", data => {
         console.log(data)
     })
+    // every time there's an update on the db, the client receives the information updates
     socket.on("update_db", data => {
         console.log(data)
         const productsList = JSON.parse(fs.readFileSync(config.THIS_PATH_PRODUCTS)) 

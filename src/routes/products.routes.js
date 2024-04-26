@@ -7,17 +7,14 @@ import { ProductManagers } from "../ProductManagers.js"
 const productsRouter = Router()
 const pm = new ProductManagers()
 
-const updateDb = () => {
-
-}
-
-
+// endpoint to get an entire porducts list or a limited one
 productsRouter.get("/", async (req, res) => {
     const limit = req.query.limit || 0
     const productsList = await pm.getProducts(limit)
     res.status(200).send({ status: "OK", payload: productsList })
 })
 
+// endpoint to get a specific product filtered by the id
 productsRouter.get("/:pid", async (req, res) => {
     const productId = req.params.pid
     const product = await pm.getProductbyId(productId)
@@ -26,6 +23,8 @@ productsRouter.get("/:pid", async (req, res) => {
         res.status(400).send({ ERROR: `ID Not found: ${productId}` })
 })
 
+
+//endpoint to add new products. 
 productsRouter.post("/", async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
@@ -38,6 +37,7 @@ productsRouter.post("/", async (req, res) => {
     }
 })
 
+// endpoint to update a specific product
 productsRouter.put("/:pid", async (req, res) => {
     const id = req.params.pid || 0
     const productId = +id
@@ -48,6 +48,7 @@ productsRouter.put("/:pid", async (req, res) => {
         res.status(400).send({ ERROR: `El producto con ID ${productId} no existe.` })
 })
 
+// Endpoint to delete a specifc product using the id
 productsRouter.delete("/:pid", async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const id = req.params.pid || 0
