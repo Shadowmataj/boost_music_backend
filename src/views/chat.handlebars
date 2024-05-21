@@ -1,0 +1,21 @@
+<div>
+    <h1>Chat</h1>
+    <ul class="list list-group" id="list-group-container">
+        {{#each messages}}
+        <li>
+            <div class="message">{{message}}</div>
+            <div class="user">Enviado por: {{user}}</div>
+        </li>
+        {{/each}}
+    </ul>
+    <div class="send-message">
+        <div>
+            <input class="text-box" type="text" id="chatBox" placeholder="Ingresar mensaje">
+            <button id="send-button">Enviar</button>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+{{!-- setting the socket --}}
+<script src="/socket.io/socket.io.js"></script>
+<script src="/static/js/chat.js"></script>

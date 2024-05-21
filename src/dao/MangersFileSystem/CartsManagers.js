@@ -1,5 +1,5 @@
 import fs from "fs"
-import config from "./config.js"
+import config from "../../config.js"
 import moment from "moment"
 
 if (!fs.existsSync(config.THIS_PATH_CARTS)) {

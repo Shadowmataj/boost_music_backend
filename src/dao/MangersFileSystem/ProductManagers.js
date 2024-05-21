@@ -1,6 +1,6 @@
 import { stringify } from "querystring"
 import fs from "fs"
-import config from "./config.js"
+import config from "../../config.js"
 
 // search for file "./src/products_list.json", it creates it if doesn't exist
 if (!fs.existsSync(config.THIS_PATH_PRODUCTS)) {
