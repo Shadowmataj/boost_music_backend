@@ -1,0 +1,18 @@
+<div>
+    <h1>{{product.title}}</h1>
+    <div class="product-details-container">
+        <div class="image-container">
+            <img class="product-image" id={{product.thumbnails}}></img>
+        </div>
+        <div class="product-details">
+            <div>Categoría: {{product.category}}</div>
+            <div>Precio: ${{product.price}}</div>
+            <button class="add-product-button" id={{product._id}}>Agregar</button>
+        </div>
+
+    </div>
+
+</div>
+{{!-- setting the socket --}}
+<script src="/socket.io/socket.io.js"></script>
+<script src="/static/js/productsDetails.js"></script>

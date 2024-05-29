@@ -1,0 +1,13 @@
+<div>
+    <h1>Cart ID: {{cart._id}}</h1>
+
+    <ul class="cart-unlist list-group list-group-numbered" id="list-group-container">        
+        {{#each cart.products}}
+        <li class="cart-list list-group-item ">{{this.id.title}}, price: {{this.id.price}}, stock: {{this.id.stock}}, quantity: {{this.quantity}}</li>
+        {{/each}}
+    </ul>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+{{!-- setting the socket --}}
+<script src="/socket.io/socket.io.js"></script>
+<script src="/static/js/carts.js"></script>

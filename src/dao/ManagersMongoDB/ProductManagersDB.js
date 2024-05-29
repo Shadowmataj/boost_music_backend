@@ -1,5 +1,5 @@
 import productsModel from "../models/products.models.js"
-
+import config from "../../config.js"
 
 // create a class ProductManager to manage all the products we need.
 export class ProductManagers {
@@ -7,7 +7,7 @@ export class ProductManagers {
     // async function to add products into de data base
     async addProduct(title, description, thumbnails, price, category, stock, code, status) {
 
-        try{
+        try {
             const item = {
                 title: title,
                 description: description,
@@ -20,24 +20,52 @@ export class ProductManagers {
             }
             console.log(item)
             await productsModel.insertMany([item])
-            return {status:"OK", payload: "El producto ha sido agregado exitosamente"}
-        } catch (err){
-            return {status:"ERROR", type: err}
+            return { status: "OK", payload: "El producto ha sido agregado exitosamente" }
+        } catch (err) {
+            return { status: "ERROR", type: err }
         }
 
-        
+
     }
     //function to get a certain amount of products or the entire array
-    async getProducts(limit) {
+    async getProducts(limitProducts, pageNumber, sortProducts, queryProperty, property, filter) {
         try {
-            if (limit === 0) {
-                const products = await productsModel.find({}).lean()
-                return { status: "OK", payload: products }
-            } else {
-                const products = await productsModel.find({}).limit(limit).lean()
-                return { status: "OK", payload: products }
+            let link = `http://localhost:${config.PORT}/api/products?limit=${limitProducts}`
+            const options = { page: pageNumber, limit: limitProducts }
+
+            if(property === "availability" && filter === "true"){
+                queryProperty = {stock: {$gt: 0}}
+            } else if (property === "availability" && filter === "false"){
+                queryProperty = {stock: {$eq: 0}}                
             }
+
+            if (sortProducts === 1 || sortProducts === -1) {
+                options["sort"] = { price: sortProducts }
+                link = `${link}&sort=${sortProducts}`
+            }
+            const products = await productsModel.paginate(
+                queryProperty, options)
+
+            if (products.docs.length === 0) throw "No existen elementos con la propiedad o el filtro seleccionados."
+
+
+            const result = { status: "OK", payload: products.docs, totalPages: products.totalPages, prevPage: products.prevPage, nextPage: products.nextPage, page: products.page, hasPrevPage: products.hasPrevPage, hasNextPage: products.hasNextPage }
+
+            if (property) link = `${link}&property=${property}`
+            if (filter) link = `${link}&filter=${filter}`
+
+            if (products.hasPrevPage === false) result["prevLink"] = null
+            else {
+                result["prevLink"] = `${link}&page=${pageNumber - 1}`
+            }
+            if (products.hasNextPage === false) result["nextLink"] = null
+            else {
+                result["nextLink"] = `${link}&page=${pageNumber + 1}`
+            }
+
+            return result
         } catch (err) {
+            console.log(`${err}`)
             return { status: "ERROR", type: err }
         }
     }

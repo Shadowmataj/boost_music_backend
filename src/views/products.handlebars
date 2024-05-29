@@ -1,0 +1,39 @@
+<div>
+    <h1>Products</h1>
+    <ul class="products-unlist list-group" id="list-group-container">
+        {{#each products.docs}}
+        <li class="products-list list-group-item" id={{this._id}}>
+            <div class="products-list-elements">{{this.title}}</div>
+            <div class="products-list-elements">Price: {{this.price}}</div>
+            <div class="products-list-elements">Stock: {{this.stock}}</div>
+            <div class="products-list-elements">{{this.category}}</div>
+            <button class="products-button add-product-button products-list-elements" id={{this._id}}>Agregar</button>
+            <button class="products-button details-product-button products-list-elements" id={{this._id}}>Detalles</button>
+        </li>
+        {{/each}}
+    </ul>
+    <div class="products-info">
+        {{#if products.hasPrevPage}}
+        <button>
+            <a class="prev-page-link" id="prev-page">
+                {{products.prevPage}}
+            </a>
+        </button>
+        {{else}}
+        <button disabled>0</button>
+        {{/if}}
+        <div class="actual-page">{{products.page}}</div>
+        {{#if products.hasNextPage}}
+        <button>
+        <a class="next-page-link" id="next-page">
+            {{products.nextPage}}
+            </a>
+        </button>
+        {{else}}
+        <button disabled>-</button>
+        {{/if}}
+    </div>
+</div>
+{{!-- setting the socket --}}
+<script src="/socket.io/socket.io.js"></script>
+<script src="/static/js/products.js"></script>

@@ -10,10 +10,16 @@ const pm = new ProductManagers()
 
 // endpoint to get an entire porducts list or a limited one
 productsRouter.get("/", async (req, res) => {
-    const limit = req.query.limit || 0
-    const productsList = await pm.getProducts(limit)
-    if (productsList.status === "OK") res.status(200).send({ status: "OK", payload: productsList.payload })
-    else if (productsList.status === "ERROR") res.status(400).send({ status: "Error" })
+    const limit = +(req.query.limit || 10)
+    const page = +(req.query.page || 1)
+    const sort = +(req.query.sort || 0)
+    const property  = req.query.property
+    const filter = req.query.filter
+    const query = {}
+    if(property && filter) query[property] = filter
+    const resp = await pm.getProducts(limit, page, sort, query, property, filter)
+    if (resp.status === "OK") res.status(200).send(resp)
+    else if (resp.status === "ERROR") res.status(400).send({ error: `${resp.type}`})
     // res.status(200).send({ status: "OK", payload: productsList })
 })
 
