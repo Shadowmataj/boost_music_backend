@@ -1,5 +1,20 @@
+<header>
+    <h1 class="title">Lista de productos</h1>
+    <nav class="nav-bar">
+        {{#if user}}
+        {{user.firstName}} {{user.lastName}}
+        <form action="/views/profile" method="get">
+            <button type="submit" class="profile-button">Ir a mi perfil</button>
+        </form>
+        {{else}}
+        <form action="/views/login" method="get">
+            <button type="submit" class="profile-button">Login</button>
+        </form>
+        {{/if}}
+    </nav>
+</header>
+
 <div>
-    <h1>Products</h1>
     <ul class="products-unlist list-group" id="list-group-container">
         {{#each products.docs}}
         <li class="products-list list-group-item" id={{this._id}}>
@@ -8,7 +23,8 @@
             <div class="products-list-elements">Stock: {{this.stock}}</div>
             <div class="products-list-elements">{{this.category}}</div>
             <button class="products-button add-product-button products-list-elements" id={{this._id}}>Agregar</button>
-            <button class="products-button details-product-button products-list-elements" id={{this._id}}>Detalles</button>
+            <button class="products-button details-product-button products-list-elements"
+                id={{this._id}}>Detalles</button>
         </li>
         {{/each}}
     </ul>
@@ -25,8 +41,8 @@
         <div class="actual-page">{{products.page}}</div>
         {{#if products.hasNextPage}}
         <button>
-        <a class="next-page-link" id="next-page">
-            {{products.nextPage}}
+            <a class="next-page-link" id="next-page">
+                {{products.nextPage}}
             </a>
         </button>
         {{else}}

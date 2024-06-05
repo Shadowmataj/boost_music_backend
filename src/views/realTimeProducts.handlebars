@@ -1,12 +1,27 @@
+<header>
+    <h1 class="title">Lista de productos</h1>
+    <nav class="nav-bar">
+        {{#if user}}
+        {{user.firstName}} {{user.lastName}}
+        <form action="/views/profile" method="get">
+            <button type="submit" class="profile-button">Ir a mi perfil</button>
+        </form>
+        {{else}}
+        <form action="/views/login" method="get">
+            <button type="submit" class="profile-button">Login</button>
+        </form>
+        {{/if}}
+    </nav>
+</header>
+
 <div>
-    <h1>Lista de productos</h1>
     {{!-- In the first instance, it gets the products list from the endpoint to deploy every one --}}
-    <ul class="list-group list-group-numbered" id="list-group-container">
-    {{#each products}}
-        <li class="list-group-item">{{title}}, ${{price}}, {{stock}}, {{category}}, {{code}}</li>
-    {{/each}}
+    <ul class="list-group products-unlist list-group-numbered" id="list-group-container">
+        {{#each products}}
+        <li class="products-list list-group-item">{{title}}, ${{price}}, {{stock}}, {{category}}, {{code}}</li>
+        {{/each}}
     </ul>
 </div>
-{{!-- setting the socket  --}}
+{{!-- setting the socket --}}
 <script src="/socket.io/socket.io.js"></script>
 <script src="/static/js/realTimeProducts.js"></script>

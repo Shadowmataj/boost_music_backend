@@ -25,6 +25,7 @@ routes.get("/products", async (req, res) => {
         styles: "index.css",
         products: data
     }
+    if(req.session.user) resp["user"] = req.session.user
     res.render("products", resp)
 })
 
@@ -47,6 +48,7 @@ routes.get("/realtimeproducts", async (req, res) => {
         styles: "index.css",
         products: data
     }
+    if(req.session.user) resp["user"] = req.session.user
     res.render("realTimeProducts", resp)
 })
 
@@ -68,6 +70,33 @@ routes.get("/carts/:cid", async (req, res) => {
         cart: data
     }
     res.render("carts", resp)
+})
+
+routes.get("/login", async (req, res) => {
+    if(req.session.user){
+        res.redirect("/views/profile")
+    }
+    res.render("login", {styles: "index.css"})
+})
+
+routes.get("/register", async (req, res) => {
+    
+    const resp = {
+        styles: "index.css",
+        user: req.session.user
+    }
+    res.render("register", resp)
+})
+
+routes.get("/profile", async (req, res) => {
+    if(!req.session.user){
+        res.redirect("/views/login")
+    } 
+    const resp = {
+        styles: "index.css",
+        user: req.session.user
+    }
+    return res.render("profile", resp)
 })
 
 

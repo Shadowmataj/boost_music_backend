@@ -1,9 +1,11 @@
-<div>
+<header>
     <h1>Cart ID: {{cart._id}}</h1>
-
-    <ul class="cart-unlist list-group list-group-numbered" id="list-group-container">        
+</header>
+<div>
+    <ul class="cart-unlist list-group list-group-numbered" id="list-group-container">
         {{#each cart.products}}
-        <li class="cart-list list-group-item ">{{this.id.title}}, price: {{this.id.price}}, stock: {{this.id.stock}}, quantity: {{this.quantity}}</li>
+        <li class="cart-list list-group-item ">{{this.id.title}}, price: {{this.id.price}}, stock: {{this.id.stock}},
+            quantity: {{this.quantity}}</li>
         {{/each}}
     </ul>
 </div>
