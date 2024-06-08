@@ -22,10 +22,9 @@ export class usersManagers {
     }
     
 
-    async findUser (userEmail){
+    async findUser (options){
 
         try{
-            const options = { email: userEmail}
             const user = await usersModel.find(options).lean()
             return user[0]
 

@@ -223,3 +223,9 @@ body.swal2-shown>[aria-hidden='true'] {
 .nav-bar{
     text-align: center;
 }
+
+.passport-options{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}

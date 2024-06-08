@@ -31,7 +31,8 @@
 
         <div class="input-group" style="width: 100%; margin-bottom: 32px;">
             <span class="input-group-text" id="group5"><i class="fa-solid fa-lock"></i></span>
-            <input type="password" name="password" class="form-control" placeholder="Password" required="required" autocomplete="password">
+            <input type="password" name="password" class="form-control" placeholder="Password" required="required"
+                autocomplete="password">
         </div>
 
         <button type="submit" class="btn btn-success btn-100">Registrarse</button>
@@ -43,6 +44,9 @@
         {{/if}}
 
         <div style="margin-top: 24px;">
+            <button class="btn btn-info submit_btn"
+                onclick="window.location.replace('/sessions/ghlogin')">Github</button>
+            <br><br>
             Ya tenés cuenta?: <a class="a2" href="/views/login">Ingresá</a>
         </div>
     </form>

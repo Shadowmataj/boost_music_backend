@@ -16,6 +16,8 @@ import cartsModel from "./dao/models/cart.models.js"
 import productModels from "./dao/models/products.models.js"
 import session from "express-session"
 import fileStore from "session-file-store"
+import passport from "passport"
+import local from "passport-local"
 
 
 const app = express()
@@ -43,6 +45,10 @@ app.use(session({
     resave: true,
     saveUninitialized: true 
 }))
+
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 // end points configuration
 app.use("/api/products", productsRoutes)
