@@ -1,9 +1,8 @@
 import { Router } from "express";
-import usersModels from "../dao/models/users.model.js"
-import { usersManagers } from "../dao/ManagersMongoDB/usersManagersDB.js"
-import { createHash, isValidPassword } from "../utils.js"
-import initAuthStrategies from "../auth/passport.strategies.js";
 import passport from "passport";
+import initAuthStrategies from "../auth/passport.strategies.js";
+import { usersManagers } from "../dao/ManagersMongoDB/usersManagersDB.js";
+import { createHash, isValidPassword } from "../utils.js";
 
 
 const routes = Router()
@@ -36,20 +35,6 @@ routes.post("/login", async (req, res) => {
 })
 
 routes.post("/pplogin", passport.authenticate("login", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
-
-    try {
-        req.session.user = req.user
-        req.session.save(err => {
-            if (err) return res.status(500).send({ origin: config.SERVER, payload: null, error: err.message });
-            res.redirect("/views/profile")
-        })
-    }
-    catch (err) {
-        res.status(500).send({ status: "ERROR", type: err })
-    }
-})
-
-routes.post("/pploginuserc", passport.authenticate("loginuserc", { failureRedirect: `/views/loginuserc?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
 
     try {
         req.session.user = req.user
@@ -100,25 +85,13 @@ routes.get("/gglogincallback", passport.authenticate("ggllogin", { failureRedire
 
 routes.post("/register", async (req, res) => {
 
-    const { firstName, lastName, email, password } = req.body
+    const { firstName, lastName, email, age, password } = req.body
     const hashPassword = createHash(password)
-    const resp = await um.addUser(firstName, lastName, email, hashPassword)
+    const resp = await um.addUser(firstName, lastName, email, age, hashPassword)
     resp.status === "OK" ?
         res.redirect("/views/login") :
         res.redirect("/views/register")
 })
-
-
-routes.post("/registeruserc", async (req, res) => {
-
-    const { firstName, lastName, email, age, password } = req.body
-    const hashPassword = createHash(password)
-    const resp = await um.addUserComplete(firstName, lastName, email, age, hashPassword)
-    resp.status === "OK" ?
-        res.redirect("/views/pploginuserc") :
-        res.redirect("/views/registeruserc")
-})
-
 
 routes.get("/current", async (req, res) => {
     if(req.session.user) return res.status(200).send(req.session.user)
@@ -129,7 +102,7 @@ routes.post("/logout", async (req, res) => {
     try {
         req.session.destroy((err) => {
             if (err) return res.status(500).send({ status: "ERROR", type: "No se ha podido completar la operación." })
-            res.redirect("/views/loginuserc")
+            res.redirect("/views/login")
         })
     } catch (err) {
         console.log(`${err}`)

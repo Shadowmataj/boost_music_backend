@@ -27,23 +27,6 @@ const initAuthStrategies = () => {
         }
     ))
 
-    passport.use("loginuserc", new localStrategy(
-        { passReqToCallback: true, usernameField: "email" },
-        async (req, username, password, done) => {
-            try {
-                const user = await um.findUserComplete({ email: username })
-                if (user && isValidPassword(user, password)) {
-                    const { password, ...filteredUser } = user
-                    return done(null, filteredUser)
-                } else {
-                    return done(null, false)
-                }
-            } catch (err) {
-                return done(err, false)
-            }
-        }
-    ))
-
 
     passport.use("ghlogin", new gitHubStrategy({
         clientID: config.GITHUB_CLIENT_ID,
@@ -55,10 +38,10 @@ const initAuthStrategies = () => {
                 const gitEmail = profile._json?.email || null
                 if (gitEmail) {
                     
-                    const userMongo = await um.findUserComplete({ email: gitEmail })
+                    const userMongo = await um.findUser({ email: gitEmail })
                 
                     if (!userMongo) {
-                        const process = await um.addUserComplete(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], gitEmail, "none")
+                        const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], gitEmail, "none")
 
                         return done(null, process)
                     } else {
@@ -82,10 +65,10 @@ const initAuthStrategies = () => {
                 const googleEmail = profile._json?.email || null
 
                 if (googleEmail) {
-                    const userMongo = await um.findUserComplete({ email: googleEmail })
+                    const userMongo = await um.findUser({ email: googleEmail })
                 
                     if (!userMongo) {
-                        const process = await um.addUserComplete(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], googleEmail, "none")
+                        const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], googleEmail, "none")
 
                         return done(null, process)
                     } else {

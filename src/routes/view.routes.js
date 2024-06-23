@@ -1,7 +1,7 @@
 import { Router } from "express";
-import productsModel from "../dao/models/products.models.js";
-import messagesModel from "../dao/models/messages.models.js";
 import cartsModel from "../dao/models/cart.models.js";
+import messagesModel from "../dao/models/messages.models.js";
+import productsModel from "../dao/models/products.models.js";
 
 
 const routes = Router()
@@ -76,15 +76,7 @@ routes.get("/login", async (req, res) => {
     if(req.session.user){
         res.redirect("/views/profile")
     }
-    res.render("login", {styles: "index.css"})
-})
-
-routes.get("/loginuserc", async (req, res) => {
-    const errorMessage = req.params.error
-    if(req.session.user){
-        res.redirect("/views/profile")
-    }
-    res.render("login_complete", {styles: "index.css", showError: req.query.error ? true: false, errorMessage: req.query.error })
+    res.render("login", {styles: "index.css", showError: req.query.error ? true: false, errorMessage: req.query.error })
 })
 
 routes.get("/register", async (req, res) => {
@@ -94,15 +86,6 @@ routes.get("/register", async (req, res) => {
         user: req.session.user
     }
     res.render("register", resp)
-})
-
-routes.get("/registeruserc", async (req, res) => {
-    
-    const resp = {
-        styles: "index.css",
-        user: req.session.user
-    }
-    res.render("registeruserc", resp)
 })
 
 routes.get("/profile", async (req, res) => {
