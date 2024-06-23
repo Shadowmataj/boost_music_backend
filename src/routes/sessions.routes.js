@@ -94,8 +94,11 @@ routes.post("/register", async (req, res) => {
 })
 
 routes.get("/current", async (req, res) => {
-    if(req.session.user) return res.status(200).send(req.session.user)
-    res.status(400).send({status: "ERROR", error: "No hay usuario activo."})
+    if (req.session.user) {
+        const {password, ...filteredUser} = req.session.user
+        return res.status(200).send(filteredUser)
+    }
+    res.status(400).send({ status: "ERROR", error: "No hay usuario activo." })
 })
 
 routes.post("/logout", async (req, res) => {

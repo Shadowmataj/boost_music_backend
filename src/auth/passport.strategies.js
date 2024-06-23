@@ -41,7 +41,7 @@ const initAuthStrategies = () => {
                     const userMongo = await um.findUser({ email: gitEmail })
                 
                     if (!userMongo) {
-                        const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], gitEmail, "none")
+                        const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], gitEmail, "undifine", "none")
 
                         return done(null, process)
                     } else {
@@ -68,7 +68,7 @@ const initAuthStrategies = () => {
                     const userMongo = await um.findUser({ email: googleEmail })
                 
                     if (!userMongo) {
-                        const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], googleEmail, "none")
+                        const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], googleEmail, "undefine", "none")
 
                         return done(null, process)
                     } else {
