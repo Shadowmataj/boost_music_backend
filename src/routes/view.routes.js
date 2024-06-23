@@ -79,6 +79,14 @@ routes.get("/login", async (req, res) => {
     res.render("login", {styles: "index.css"})
 })
 
+routes.get("/loginuserc", async (req, res) => {
+    const errorMessage = req.params.error
+    if(req.session.user){
+        res.redirect("/views/profile")
+    }
+    res.render("login_complete", {styles: "index.css", showError: req.query.error ? true: false, errorMessage: req.query.error })
+})
+
 routes.get("/register", async (req, res) => {
     
     const resp = {
@@ -86,6 +94,15 @@ routes.get("/register", async (req, res) => {
         user: req.session.user
     }
     res.render("register", resp)
+})
+
+routes.get("/registeruserc", async (req, res) => {
+    
+    const resp = {
+        styles: "index.css",
+        user: req.session.user
+    }
+    res.render("registeruserc", resp)
 })
 
 routes.get("/profile", async (req, res) => {

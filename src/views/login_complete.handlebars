@@ -1,0 +1,45 @@
+<style>
+    body {
+        background-color: #470d64;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+<header>
+    <h1>Boost Music</h1>
+</header>
+<div class="login-container">
+    <h2><b>Login de usuario</b></h2>
+
+    <form action="/sessions/pploginuserc" method="post" style="margin-top: 32px;">
+        <div class="input-group" style="width: 300px; margin-bottom: 32px;">
+            <span class="input-group-text" id="group1"><i class="fa-solid fa-user"></i></span>
+            <input type="email" name="email" class="form-control" placeholder="Nombre" required="required"
+                autofocus="autofocus">
+        </div>
+
+        <div class="input-group" style="width: 300px; margin-bottom: 32px;">
+            <span class="input-group-text" id="group2"><i class="fa-solid fa-lock"></i></span>
+            <input type="password" name="password" class="form-control" placeholder="Contraseña" required="required">
+        </div>
+
+
+        {{#if showError}}
+        <div class="alert alert-danger" role="alert" style="margin-top: 16px;">
+            {{ errorMessage }}
+        </div>
+        {{/if}}
+
+        <div class="passport-options" style="margin-top: 24px;">
+            <button class="btn btn-info submit_btn" onclick="window.location.replace('/sessions/ghlogin')">Github</button>
+            <button class="btn btn-info submit_btn" onclick="window.location.replace('/sessions/ggllogin')">Google</button>
+        </div>
+        <br><br>
+        <button type="submit" class="btn btn-success">Ingresar</button>
+
+        <div style="margin-top: 24px;">
+            No tenés cuenta?: <a class="a2" href="/views/registeruserc">Registrate</a>
+        </div>
+    </form>
+</div>
