@@ -68,7 +68,7 @@ const initAuthStrategies = () => {
                     const userMongo = await um.findUser({ email: googleEmail })
                 
                     if (!userMongo) {
-                        const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], googleEmail, "undefine", "none")
+                        const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], googleEmail, 0, "none")
 
                         return done(null, process)
                     } else {
