@@ -1,30 +1,27 @@
 import express from "express"
-import config from "./config.js"
-import cartRoutes from "./routes/cart.routes.js"
-import productsRoutes from "./routes/products.routes.js"
-import artistsRoutes from "./routes/artists.routes.js"
-import commentsRoutes from "./routes/comments.routes.js"
-import brandsRoutes from "./routes/brands.routes.js"
-import sessionsRoutes from "./routes/sessions.routes.js"
 import handlebars from "express-handlebars"
-import viewRoutes from "./routes/view.routes.js"
-import { Server } from "socket.io"
-import mongoose from "mongoose"
-import mesagesModel from "./dao/models/messages.models.js"
-import fs from "fs"
-import cartsModel from "./dao/models/cart.models.js"
-import productModels from "./dao/models/products.models.js"
 import session from "express-session"
-import fileStore from "session-file-store"
+import mongoose from "mongoose"
 import passport from "passport"
-import local from "passport-local"
-
+import fileStore from "session-file-store"
+import { Server } from "socket.io"
+import config from "./config.js"
+import cartsModel from "./dao/models/cart.models.js"
+import mesagesModel from "./dao/models/messages.models.js"
+import productModels from "./dao/models/products.models.js"
+import artistsRoutes from "./routes/artists.routes.js"
+import brandsRoutes from "./routes/brands.routes.js"
+import cartRoutes from "./routes/cart.routes.js"
+import commentsRoutes from "./routes/comments.routes.js"
+import productsRoutes from "./routes/products.routes.js"
+import sessionsRoutes from "./routes/sessions.routes.js"
+import viewRoutes from "./routes/view.routes.js"
 
 const app = express()
 const fileStorage = fileStore(session)
 const httpServer = app.listen(config.PORT, async () => {
     await mongoose.connect(config.MONGODB_URI)
-    console.log(`App activa en el puerto ${config.PORT}, enlazada a la base de datos.`)
+    console.log(`App activa en el puerto ${config.PORT}, enlazada a la base de datos. PID: ${process.pid}`)
 })
 const socketServer = new Server(httpServer)
 // stablish this variable to use it on another module
