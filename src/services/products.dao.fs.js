@@ -15,7 +15,7 @@ export class ProductManagers {
     }
     
     // async function to add products into de data base
-    addProduct(title, description, price, thumbnails, code, stock, status, category) {
+    addProductService(title, description, thumbnails, price, category, stock, code, status) {
 
         const codeVerification = this.products.some(item => item.code == code)
 
@@ -39,17 +39,17 @@ export class ProductManagers {
         }
     }
     //function to get a certain amount of products or the entire array
-    getProducts(limit) {
+    getProductsService(limit) {
         const newList = [...this.products]
         return limit === 0 ? newList : newList.splice(0, limit)
     }
     //funtion to get a specific product by id
-    getProductbyId(pid) {
+    getProductbyIdService(pid) {
         const item = this.products.find(resp => resp.id == pid)
         return item
     }
     //async function to erase a product in our database
-    async deleteProduct(id) {
+    async deleteProductService(id) {
         const product = this.products.some((item => item.id === id))
         if (product) {
             this.products = this.products.filter(resp => resp.id !== id)
@@ -61,7 +61,7 @@ export class ProductManagers {
 
     }
 
-    async updateProduct(id, title, description, price, thumbnails, code, stock, status, category) {
+    async updateProductService(id, title, description, price, thumbnails, code, stock, status, category) {
         const newList = [...this.products]
 
         const idExists = newList.find(item => item.id == id)

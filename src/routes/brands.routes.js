@@ -1,7 +1,7 @@
 // *****CART ROUTES FILE ******
 
 import { Router } from "express";
-import brandsModels from "../dao/models/brands.models.js";
+import brandsModels from "../models/brands.models.js";
 
 const brandsRouter = Router()
 

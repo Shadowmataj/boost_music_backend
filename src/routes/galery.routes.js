@@ -1,7 +1,7 @@
 // *****PRODUCTS ROUTES FILE ******
 
 import { Router } from "express";
-import artistsModels from "../dao/models/artists.models.js"
+import artistsModels from "../models/artists.models.js"
 
 const galeryRouter = Router()
 

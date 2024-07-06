@@ -1,8 +1,8 @@
 import { Router } from "express";
 import passport from "passport";
 import initAuthStrategies from "../auth/passport.strategies.js";
-import { usersManagers } from "../dao/ManagersMongoDB/usersManagersDB.js";
-import { createHash, isValidPassword } from "../utils.js";
+import { usersManagers } from "../controller/users.manager.js";
+import { createHash, isValidPassword } from "../services/utils.js";
 
 
 const routes = Router()

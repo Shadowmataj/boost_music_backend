@@ -1,7 +1,7 @@
 // *****PRODUCTS ROUTES FILE ******
 
 import { Router } from "express";
-import commentsModels from "../dao/models/comments.models.js"
+import commentsModels from "../models/comments.models.js"
 
 const commentsRouter = Router()
 

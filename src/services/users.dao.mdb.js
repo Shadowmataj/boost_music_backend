@@ -2,9 +2,9 @@ import moment from "moment"
 import cartModel from "../models/cart.models.js"
 import usersModel from "../models/users.model.js"
 
-export class usersManagers {
+export class UsersServices {
 
-    async addUser(firstName, lastName, email, age, password) {
+    async addUserService(firstName, lastName, email, age, password) {
         try {
             const userInfo = {
                 firstName: firstName,
@@ -32,7 +32,7 @@ export class usersManagers {
         }
     }
 
-    async findUser(options) {
+    async findUserService(options) {
 
         try {
             const user = await usersModel.find(options).lean()

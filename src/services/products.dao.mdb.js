@@ -1,11 +1,11 @@
 import productsModel from "../models/products.models.js"
-import config from "../../config.js"
+import config from "../config.js"
 
 // create a class ProductManager to manage all the products we need.
-export class ProductManagers {
+export class ProductServices {
     // the constructor creates all the elements we need in our product manager     
     // async function to add products into de data base
-    async addProduct(title, description, thumbnails, price, category, stock, code, status) {
+    async addProductService(title, description, thumbnails, price, category, stock, code, status) {
 
         try {
             const item = {
@@ -28,10 +28,12 @@ export class ProductManagers {
 
     }
     //function to get a certain amount of products or the entire array
-    async getProducts(limitProducts, pageNumber, sortProducts, queryProperty, property, filter) {
+    async getProductsService(limitProducts, pageNumber, sortProducts, queryProperty, property, filter) {
         try {
             let link = `http://localhost:${config.PORT}/api/products?limit=${limitProducts}`
             const options = { page: pageNumber, limit: limitProducts }
+
+            const categories = await productsModel.distinct("category")
 
             if(property === "availability" && filter === "true"){
                 queryProperty = {stock: {$gt: 0}}
@@ -47,9 +49,8 @@ export class ProductManagers {
                 queryProperty, options)
 
             if (products.docs.length === 0) throw "No existen elementos con la propiedad o el filtro seleccionados."
-
-
-            const result = { status: "OK", payload: products.docs, totalPages: products.totalPages, prevPage: products.prevPage, nextPage: products.nextPage, page: products.page, hasPrevPage: products.hasPrevPage, hasNextPage: products.hasNextPage }
+            
+            const result = { status: "OK", payload: products.docs, totalPages: products.totalPages, prevPage: products.prevPage, nextPage: products.nextPage, page: products.page, hasPrevPage: products.hasPrevPage, hasNextPage: products.hasNextPage, categories: categories}
 
             if (property) link = `${link}&property=${property}`
             if (filter) link = `${link}&filter=${filter}`
@@ -70,10 +71,11 @@ export class ProductManagers {
         }
     }
     //funtion to get a specific product by id
-    async getProductbyId(pid) {
+    async getProductbyIdService(pid) {
 
         try {
             const product = await productsModel.findById(pid)
+            console.log(product)
             return { status: "OK", payload: product }
 
         } catch (err) {
@@ -81,7 +83,7 @@ export class ProductManagers {
         }
     }
     //async function to erase a product in our database
-    async deleteProduct(id) {
+    async deleteProductService(id) {
 
         try {
             const product = await productsModel.findByIdAndDelete(id)
@@ -92,7 +94,7 @@ export class ProductManagers {
 
     }
 
-    async updateProduct(id, title, description, price, thumbnails, code, stock, status, category) {
+    async updateProductService(id, title, description, price, thumbnails, code, stock, status, category) {
 
         try {
             const product = {}

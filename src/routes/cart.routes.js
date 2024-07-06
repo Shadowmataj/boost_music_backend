@@ -2,7 +2,7 @@
 
 import { Router } from "express";
 // import { CartsManagers } from "../CartsManagers.js";
-import { CartsManagers } from "../dao/ManagersMongoDB/CartsManagersDB.js";
+import { CartsManagers } from "../controller/carts.manager.js";
 const cartRouter = Router()
 const cm = new CartsManagers()
 

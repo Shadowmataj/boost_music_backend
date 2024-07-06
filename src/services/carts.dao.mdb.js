@@ -1,12 +1,10 @@
-import fs from "fs"
-import config from "../../config.js"
 import moment from "moment"
 import cartModels from "../models/cart.models.js"
 import productsModel from "../models/products.models.js"
 
-export class CartsManagers {
+export class CartsServices {
 
-    async addCart(product) {
+    async addCartService(product) {
         const date = moment().format()
         const item = {
             products: product,
@@ -23,7 +21,7 @@ export class CartsManagers {
         }
     }
 
-    async getCartById(id) {
+    async getCartByIdService(id) {
         try {
             const cart = await cartModels.findById(id).populate({ path: 'products.id', model: productsModel }).lean()
             return { status: "OK", payload: cart }
@@ -32,7 +30,7 @@ export class CartsManagers {
         }
     }
 
-    async updateCart(cid, pid, quantity) {
+    async updateCartService(cid, pid, quantity) {
         try {
             const cart = await cartModels.findById(cid)
             const cartUpdated = null
@@ -63,7 +61,7 @@ export class CartsManagers {
         }
     }
 
-    async addCartProducts(cid, body) {
+    async addCartProductsService(cid, body) {
         try {
             const cart = await cartModels.findById(cid)
             const cartProducts = [...cart.products]
@@ -87,7 +85,7 @@ export class CartsManagers {
         }
     }
 
-    async updateCartProduct(cid, pid, quantity) {
+    async updateCartProductService(cid, pid, quantity) {
         try {
             const cart = await cartModels.findById(cid).exec()
             const product = await productsModel.findOne({ _id: pid }).exec()
@@ -109,7 +107,7 @@ export class CartsManagers {
         }
     }
 
-    async deleteCartProduct(cid, pid) {
+    async deleteCartProductService(cid, pid) {
         try {
             const cart = await cartModels.findById(cid)
             await productsModel.findById(pid)
@@ -127,7 +125,7 @@ export class CartsManagers {
         }
     }
 
-    async deleteProducts(cid) {
+    async deleteProductsService(cid) {
         try {
             await cartModels.findByIdAndUpdate(cid, { products: [] })
             return { status: "OK", payload: "Se han eliminado los productos del carrito." }

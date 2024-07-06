@@ -1,5 +1,5 @@
 import fs from "fs"
-import config from "../../config.js"
+import config from "../config.js"
 import moment from "moment"
 
 if (!fs.existsSync(config.THIS_PATH_CARTS)) {
@@ -22,7 +22,7 @@ export class CartsManagers {
         return result
     }
 
-    addCart(product) {
+    addCartService(product) {
         let id = ''
         const idCartList = this.cartList.map(item => item.id)
         const date = moment().format()
@@ -41,12 +41,12 @@ export class CartsManagers {
         return item
     }
 
-    getCartById(id) {
+    getCartByIdService(id) {
         const cart = this.cartList.find(item => item.id === id)
         return cart
     }
 
-    updateCart(cid, pid, quantity) {
+    updateCartService(cid, pid, quantity) {
         const cartIndex = this.cartList.findIndex(item => item.id === cid)
         const productsList = JSON.parse(fs.readFileSync(config.THIS_PATH_PRODUCTS))
         const productExists = productsList.some(item => item.id === pid)

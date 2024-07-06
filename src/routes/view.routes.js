@@ -1,7 +1,7 @@
 import { Router } from "express";
-import cartsModel from "../dao/models/cart.models.js";
-import messagesModel from "../dao/models/messages.models.js";
-import productsModel from "../dao/models/products.models.js";
+import cartsModel from "../models/cart.models.js";
+import messagesModel from "../models/messages.models.js";
+import productsModel from "../models/products.models.js";
 
 
 const routes = Router()

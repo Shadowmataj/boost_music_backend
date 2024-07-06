@@ -1,18 +1,15 @@
-import * as url from "url"
 import { Command } from "commander"
-import dotenv from "dotenv"
-import { Console } from "console"
+import * as url from "url"
 
 
 // Parseo de opciones de línea de comandos
-const commandLine = new Command()
-
-commandLine
-    .option("--mode <mode>")
-    .option("--port <port>")
-    .option("--setup <setup_number>")
-commandLine.parse()
-const clOptions = commandLine.opts()
+// const commandLine = new Command()
+// commandLine
+//     .option("--mode <mode>")
+//     .option("--port <port>")
+//     .option("--setup <setup_number>")
+// commandLine.parse()
+// const clOptions = commandLine.opts()
 
 
 // Parseo de variables de entorno
@@ -22,7 +19,7 @@ const clOptions = commandLine.opts()
 
 const config = {
     SERVER: "Atlas",
-    PORT: process.env.PORT || clOptions.port || 8080,
+    PORT: process.env.PORT || 8080,
     DIRNAME: url.fileURLToPath(new URL(".", import.meta.url)),
     // función getter
     get UPLOAD_DIR() { return `${this.DIRNAME}/public/img` },
@@ -35,7 +32,8 @@ const config = {
     GITHUB_CALL_BACK: process.env.GITHUB_CALL_BACK,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    GOOGLE_CALL_BACK: process.env.GITHUB_CALL_BACK
+    GOOGLE_CALL_BACK: process.env.GITHUB_CALL_BACK,
+    PERSISTENCE: process.env.PERSISTENCE
 }
 
 export default config

@@ -1,3 +1,4 @@
+import cors from "cors"
 import express from "express"
 import handlebars from "express-handlebars"
 import session from "express-session"
@@ -6,9 +7,9 @@ import passport from "passport"
 import fileStore from "session-file-store"
 import { Server } from "socket.io"
 import config from "./config.js"
-import cartsModel from "./dao/models/cart.models.js"
-import mesagesModel from "./dao/models/messages.models.js"
-import productModels from "./dao/models/products.models.js"
+import cartsModel from "./models/cart.models.js"
+import mesagesModel from "./models/messages.models.js"
+import productModels from "./models/products.models.js"
 import artistsRoutes from "./routes/artists.routes.js"
 import brandsRoutes from "./routes/brands.routes.js"
 import cartRoutes from "./routes/cart.routes.js"
@@ -20,9 +21,12 @@ import viewRoutes from "./routes/view.routes.js"
 const app = express()
 const fileStorage = fileStore(session)
 const httpServer = app.listen(config.PORT, async () => {
-    await mongoose.connect(config.MONGODB_URI)
+    
     console.log(`App activa en el puerto ${config.PORT}, enlazada a la base de datos. PID: ${process.pid}`)
 })
+
+await mongoose.connect(config.MONGODB_URI)
+
 const socketServer = new Server(httpServer)
 // stablish this variable to use it on another module
 app.set("socketServer", socketServer)
@@ -35,6 +39,8 @@ app.set("view engine", "handlebars")
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cors({ origin: '*' }));
+
 // using express-sesion to handle users acces
 app.use(session({
     store: new fileStorage({ path: "./sessions", ttl: 100, retries: 0 }),

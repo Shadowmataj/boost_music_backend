@@ -2,7 +2,7 @@
 
 import { Router } from "express";
 // import { ProductManagers } from "../dao/MangersFileSystem/ProductManagers.js"
-import { ProductManagers } from "../dao/ManagersMongoDB/ProductManagersDB.js"
+import { ProductManagers } from "../controller/products.manager.js"
 
 
 const productsRouter = Router()
@@ -10,7 +10,7 @@ const pm = new ProductManagers()
 
 // endpoint to get an entire porducts list or a limited one
 productsRouter.get("/", async (req, res) => {
-    const limit = +(req.query.limit || 10)
+    const limit = +(req.query.limit || 9)
     const page = +(req.query.page || 1)
     const sort = +(req.query.sort || 0)
     const property  = req.query.property
@@ -18,7 +18,7 @@ productsRouter.get("/", async (req, res) => {
     const query = {}
     if(property && filter) query[property] = filter
     const resp = await pm.getProducts(limit, page, sort, query, property, filter)
-    if (resp.status === "OK") res.status(200).send(resp)
+    if (resp.status === "OK") res.status(200).send({ status: "OK", resp: resp})
     else if (resp.status === "ERROR") res.status(400).send({ error: `${resp.type}`})
     // res.status(200).send({ status: "OK", payload: productsList })
 })
