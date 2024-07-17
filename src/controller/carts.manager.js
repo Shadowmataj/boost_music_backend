@@ -48,7 +48,8 @@ export class CartsManagers {
             console.log(`Function updateCartProducts: ${err}`)
         }
     }
-
+    
+    //The controller function dedicated to complete a purchase 
     async purchasedCart(cid, email) {
         try {
             const resp = await cs.purchasedCartService(cid, email)

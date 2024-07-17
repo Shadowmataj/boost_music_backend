@@ -104,20 +104,23 @@ class CartsServices {
         }
     }
 
+    // The service used by the Cart Controller to complete a purchase
     async purchasedCartService(cid, email) {
         try {
+            // identifying the user's cart.
             const cart = await cartModels.findById(cid)
-            const newCart = []
-            const incompletedPurchases = []
-            const alerts = []
+            const newCart = [] //To make the final ticket
+            const incompletedPurchases = [] //To update the user's Cart with the products that were out of stock.
+            const alerts = [] //To comunicate with the frontend, and letit know what products could not be purchased.
             let resp = { status: "OK" }
 
+            
             for (const item of cart.products) {
+                // Geting the information from the product. 
                 const productDetails = await productsModel.findById(item.id, "_id stock title price").lean()
+                //Fix the stock availability and what products may be purchased.
                 if (item.quantity > productDetails.stock || productDetails.stock === 0) {
-
-                    incompletedPurchases.push({id: item.id, quantity: item.quantity - productDetails.stock})
-                    
+                    incompletedPurchases.push({id: item.id, quantity: item.quantity - productDetails.stock}) 
                     item.quantity = productDetails.stock
                     if (item.quantity === 0) alerts.push({ id: productDetails._id, message: `Se ha eliminado el artículo ${productDetails.title} por falta de stock.` })
                     else alerts.push({ id: productDetails._id, message: `Se ha reducido la cantidad de ${productDetails.title} por falta de stock.` })
@@ -134,6 +137,7 @@ class CartsServices {
                 alerts: alerts,
                 purchaser: email
             }
+
             if(newCart.length > 0){
                 const purchase = await ticketModel.create(ticket)
                 for(let item of newCart){
@@ -141,7 +145,7 @@ class CartsServices {
                     const updatedStock = product.stock - item.quantity
                     await productsModel.findByIdAndUpdate(item.id, {stock: updatedStock})
                 }
-                await productsModel.fing
+
                 resp.payload = `Su compra ${purchase._id} se ha finalizado.`
             } else throw new Error("El carrito de compra está vacío.")
             await cartModels.findByIdAndUpdate(cid, { products: incompletedPurchases })

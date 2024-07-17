@@ -34,6 +34,7 @@ export const verifyRequiredBody = (requiredFields) => {
     }
 }
 
+// Middleware to authoraize the acceses depending on the user's rol
 export const filterAuth = (role) => {
     return (req, res, next) => {
         if (req.session.user === undefined) return res.redirect("/views/login")
