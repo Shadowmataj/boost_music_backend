@@ -2,9 +2,12 @@ import productsModel from "../models/products.models.js"
 import config from "../config.js"
 
 // create a class ProductManager to manage all the products we need.
-export class ProductServices {
+class ProductServices {
     // the constructor creates all the elements we need in our product manager     
     // async function to add products into de data base
+    constructor(){
+        
+    }
     async addProductService(title, description, thumbnails, price, category, stock, code, status) {
 
         try {
@@ -18,14 +21,11 @@ export class ProductServices {
                 code: code,
                 status: status,
             }
-            console.log(item)
-            await productsModel.insertMany([item])
+            await productsModel.create(item)
             return { status: "OK", payload: "El producto ha sido agregado exitosamente" }
         } catch (err) {
             return { status: "ERROR", type: err }
         }
-
-
     }
     //function to get a certain amount of products or the entire array
     async getProductsService(limitProducts, pageNumber, sortProducts, queryProperty, property, filter) {
@@ -115,3 +115,6 @@ export class ProductServices {
     }
 
 }
+
+
+export default ProductServices

@@ -26,8 +26,6 @@ const initAuthStrategies = () => {
             }
         }
     ))
-
-
     passport.use("ghlogin", new gitHubStrategy({
         clientID: config.GITHUB_CLIENT_ID,
         clientSecret: config.GITHUB_CLIENT_SECRET,
@@ -82,10 +80,10 @@ const initAuthStrategies = () => {
             }
         }
     ));
+
     passport.serializeUser((user, done) => {
         done(null, user)
     })
-
     passport.deserializeUser((user, done) => {
         done(null, user)
     })

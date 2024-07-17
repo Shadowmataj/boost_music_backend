@@ -3,6 +3,7 @@
 import { Router } from "express";
 // import { ProductManagers } from "../dao/MangersFileSystem/ProductManagers.js"
 import { ProductManagers } from "../controller/products.manager.js"
+import { filterAuth } from "../services/utils.js";
 
 
 const productsRouter = Router()
@@ -37,7 +38,7 @@ productsRouter.get("/:pid", async (req, res) => {
 
 
 //endpoint to add new products. 
-productsRouter.post("/", async (req, res) => {
+productsRouter.post("/", filterAuth("admin"), async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
     const resp = await pm.addProduct(title, description, thumbnails, price, category, stock, code, status)
@@ -58,7 +59,7 @@ productsRouter.post("/", async (req, res) => {
 })
 
 // endpoint to update a specific product
-productsRouter.put("/:pid", async (req, res) => {
+productsRouter.put("/:pid", filterAuth("admin"), async (req, res) => {
     const id = req.params.pid
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
     const resp = await pm.updateProduct(id, title, description, price, thumbnails, code, stock, status, category)
@@ -71,7 +72,7 @@ productsRouter.put("/:pid", async (req, res) => {
 })
 
 // Endpoint to delete a specifc product using the id
-productsRouter.delete("/:pid", async (req, res) => {
+productsRouter.delete("/:pid", filterAuth("admin"), async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const id = req.params.pid
     const resp = await pm.deleteProduct(id)

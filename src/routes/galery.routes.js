@@ -1,4 +1,4 @@
-// *****PRODUCTS ROUTES FILE ******
+// *****GALERY ROUTES FILE ******
 
 import { Router } from "express";
 import artistsModels from "../models/artists.models.js"

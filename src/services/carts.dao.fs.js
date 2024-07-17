@@ -6,7 +6,7 @@ if (!fs.existsSync(config.THIS_PATH_CARTS)) {
     fs.writeFileSync(config.THIS_PATH_CARTS, JSON.stringify([]))
 }
 
-export class CartsManagers {
+class CartsManagers {
     constructor() {
         this.idLength = 8
         this.cartList = JSON.parse(fs.readFileSync(config.THIS_PATH_CARTS))
@@ -69,3 +69,5 @@ export class CartsManagers {
     }
 
 }
+
+export default CartsManagers

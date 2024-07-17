@@ -1,4 +1,4 @@
-// *****CART ROUTES FILE ******
+// *****BRANDS ROUTES FILE ******
 
 import { Router } from "express";
 import brandsModels from "../models/brands.models.js";

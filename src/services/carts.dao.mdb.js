@@ -1,8 +1,10 @@
 import moment from "moment"
 import cartModels from "../models/cart.models.js"
 import productsModel from "../models/products.models.js"
+import ticketModel from "../models/ticket.models.js"
+import usersModel from "../models/users.model.js"
 
-export class CartsServices {
+class CartsServices {
 
     async addCartService(product) {
         const date = moment().format()
@@ -33,17 +35,14 @@ export class CartsServices {
     async updateCartService(cid, pid, quantity) {
         try {
             const cart = await cartModels.findById(cid)
-            const cartUpdated = null
-            const date = null
+            let cartUpdated = null
+            const date = moment().format()
             await productsModel.findOne({ _id: pid })
             const cartProducts = [...cart.products]
-            console.log(cartProducts)
             const productIndex = cartProducts.findIndex(item => item.id === pid)
             if (productIndex != -1) {
                 cartProducts[productIndex].quantity = cartProducts[productIndex].quantity + quantity
                 cartUpdated = await cartModels.findByIdAndUpdate(cid, { products: cartProducts, date: date })
-                date = moment().format()
-                return { status: "OK", payload: cartUpdated }
             } else {
                 const item = {
                     id: pid,
@@ -53,8 +52,6 @@ export class CartsServices {
                 console.log(cartProducts)
                 cartUpdated = await cartModels.findByIdAndUpdate(cid, { products: cartProducts, date: date })
             }
-            
-            date = moment().format()
             return { status: "OK", payload: cartUpdated }
         } catch (err) {
             return { status: "ERROR", type: err }
@@ -107,6 +104,55 @@ export class CartsServices {
         }
     }
 
+    async purchasedCartService(cid, email) {
+        try {
+            const cart = await cartModels.findById(cid)
+            const newCart = []
+            const incompletedPurchases = []
+            const alerts = []
+            let resp = { status: "OK" }
+
+            for (const item of cart.products) {
+                const productDetails = await productsModel.findById(item.id, "_id stock title price").lean()
+                if (item.quantity > productDetails.stock || productDetails.stock === 0) {
+
+                    incompletedPurchases.push({id: item.id, quantity: item.quantity - productDetails.stock})
+                    
+                    item.quantity = productDetails.stock
+                    if (item.quantity === 0) alerts.push({ id: productDetails._id, message: `Se ha eliminado el artículo ${productDetails.title} por falta de stock.` })
+                    else alerts.push({ id: productDetails._id, message: `Se ha reducido la cantidad de ${productDetails.title} por falta de stock.` })
+                }
+
+                if (item.quantity > 0) newCart.push({ id: item.id, quantity: item.quantity, price: productDetails.price })
+
+            }
+            const amount = newCart.reduce((acc, item) => acc += item.price * item.quantity, 0)
+            const ticket = {
+                products: newCart,
+                date: moment().format(),
+                amount: amount,
+                alerts: alerts,
+                purchaser: email
+            }
+            if(newCart.length > 0){
+                const purchase = await ticketModel.create(ticket)
+                for(let item of newCart){
+                    const product = await productsModel.findById(item.id, "-_id stock").lean()
+                    const updatedStock = product.stock - item.quantity
+                    await productsModel.findByIdAndUpdate(item.id, {stock: updatedStock})
+                }
+                await productsModel.fing
+                resp.payload = `Su compra ${purchase._id} se ha finalizado.`
+            } else throw new Error("El carrito de compra está vacío.")
+            await cartModels.findByIdAndUpdate(cid, { products: incompletedPurchases })
+
+            resp.alerts = alerts
+            return resp
+        } catch (err) {
+            return { status: "ERROR", type: err }
+        }
+    }
+
     async deleteCartProductService(cid, pid) {
         try {
             const cart = await cartModels.findById(cid)
@@ -136,3 +182,5 @@ export class CartsServices {
     }
 
 }
+
+export default CartsServices

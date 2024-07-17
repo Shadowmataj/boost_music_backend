@@ -2,7 +2,7 @@ import { Router } from "express";
 import cartsModel from "../models/cart.models.js";
 import messagesModel from "../models/messages.models.js";
 import productsModel from "../models/products.models.js";
-
+import { filterAuth } from "../services/utils.js";
 
 const routes = Router()
 
@@ -52,7 +52,7 @@ routes.get("/realtimeproducts", async (req, res) => {
     res.render("realTimeProducts", resp)
 })
 
-routes.get("/chat", async (req, res) => {
+routes.get("/chat", filterAuth("user"), async (req, res) => {
     // const data = await JSON.parse(fs.readFileSync(config.THIS_PATH_PRODUCTS))
     const data = await messagesModel.find().lean()
     const resp = {

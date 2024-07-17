@@ -1,4 +1,4 @@
-// *****PRODUCTS ROUTES FILE ******
+// *****COMMENTS ROUTES FILE ******
 
 import { Router } from "express";
 import commentsModels from "../models/comments.models.js"

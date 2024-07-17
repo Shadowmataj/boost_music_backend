@@ -1,13 +1,13 @@
 import { stringify } from "querystring"
 import fs from "fs"
-import config from "../../config.js"
+import config from "../config.js"
 
 // search for file "./src/products_list.json", it creates it if doesn't exist
 if (!fs.existsSync(config.THIS_PATH_PRODUCTS)) {
     fs.writeFileSync(config.THIS_PATH_PRODUCTS, JSON.stringify([]))
 }
 // create a class ProductManager to manage all the products we need.
-export class ProductManagers {
+class ProductManagers {
     // the constructor creates all the elements we need in our product manager 
     constructor() {
         this.products = JSON.parse(fs.readFileSync(config.THIS_PATH_PRODUCTS))
@@ -89,3 +89,5 @@ export class ProductManagers {
     }
 
 }
+
+export default ProductManagers

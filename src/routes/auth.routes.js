@@ -2,14 +2,14 @@ import { Router } from "express";
 import passport from "passport";
 import initAuthStrategies from "../auth/passport.strategies.js";
 import { usersManagers } from "../controller/users.manager.js";
-import { createHash, isValidPassword } from "../services/utils.js";
+import { createHash, isValidPassword, verifyRequiredBody, createToken } from "../services/utils.js";
 
 
 const routes = Router()
 const um = new usersManagers()
 initAuthStrategies()
 
-routes.post("/login", async (req, res) => {
+routes.post("/login", verifyRequiredBody(["email", "password"]), async (req, res) => {
 
     try {
         const { email, password } = req.body
@@ -34,7 +34,7 @@ routes.post("/login", async (req, res) => {
     }
 })
 
-routes.post("/pplogin", passport.authenticate("login", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
+routes.post("/sessionslogin", verifyRequiredBody(["email", "password"]), passport.authenticate("login", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
 
     try {
         req.session.user = req.user
@@ -42,6 +42,17 @@ routes.post("/pplogin", passport.authenticate("login", { failureRedirect: `/view
             if (err) return res.status(500).send({ origin: config.SERVER, payload: null, error: err.message });
             res.redirect("/views/profile")
         })
+    }
+    catch (err) {
+        res.status(500).send({ status: "ERROR", type: err })
+    }
+})
+
+routes.post("/jwtlogin", verifyRequiredBody(["email", "password"]), passport.authenticate("login", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
+
+    try {
+        const token = createToken(req.user, "1h")
+        res.status(200).send({ status: "OK", payload: "Usuario autenticado", token: token })
     }
     catch (err) {
         res.status(500).send({ status: "ERROR", type: err })
@@ -94,11 +105,17 @@ routes.post("/register", async (req, res) => {
 })
 
 routes.get("/current", async (req, res) => {
-    if (req.session.user) {
-        const {password, ...filteredUser} = req.session.user
-        return res.status(200).send(filteredUser)
+    try{
+        if (req.session.user) {
+            const filteredUser = await um.usersDTO(req.session.user)
+            return res.status(200).send(filteredUser)
+        } else {
+            throw new Error("No hay usuarios activos.")
+        }
+    } catch (err){
+        res.status(400).send({ status: "ERROR", error: err.message })
+        
     }
-    res.status(400).send({ status: "ERROR", error: "No hay usuario activo." })
 })
 
 routes.post("/logout", async (req, res) => {

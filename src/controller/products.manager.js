@@ -1,8 +1,7 @@
-import { ProductServices } from "../services/products.dao.mdb.js"
-// import { ProductServices } from "../services/dao.factory.js"
+import { ProductsServices } from "../services/dao.factory.js"
 
 
-const ps = new ProductServices()
+const ps = new ProductsServices()
 // create a class ProductManager to manage all the products we need.
 export class ProductManagers {
     // the constructor creates all the elements we need in our product manager     

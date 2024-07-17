@@ -1,10 +1,10 @@
-import { CartsServices } from "../services/carts.dao.mdb.js"
+import { CartsServices } from "../services/dao.factory.js"
 
 const cs = new CartsServices()
 
 export class CartsManagers {
 
-    async addCartService(product) {
+    async addCart(product) {
         try {
             const resp = await cs.addCartService(product)
             return resp
@@ -13,54 +13,63 @@ export class CartsManagers {
         }
     }
 
-    async getCartByIdService(id) {
+    async getCartById(id) {
         try {
-            const resp = await cs.getCartById(id)
+            const resp = await cs.getCartByIdService(id)
             return resp
         } catch (err) {
             console.log(`Function GetCartById: ${err}`)
         }
     }
 
-    async updateCartService(cid, pid, quantity) {
+    async updateCart(cid, pid, quantity) {
         try {
-            const resp = await cs.updateCart(cid, pid, quantity)
+            const resp = await cs.updateCartService(cid, pid, quantity)
             return resp
         } catch (err) {
             console.log(`Function updateCart: ${err}`)
         }
     }
 
-    async addCartProductsService(cid, body) {
+    async addCartProducts(cid, body) {
         try {
-            const resp = await cs.addCartProducts(cid, body)
+            const resp = await cs.addCartProductsService(cid, body)
             return resp
         } catch (err) {
             console.log(`Function addCartProducts: ${err}`)
         }
     }
 
-    async updateCartProductService(cid, pid, quantity) {
+    async updateCartProduct(cid, pid, quantity) {
         try {
-            const resp = await cs.updateCartProduct(cid, pid, quantity)
+            const resp = await cs.updateCartProductService(cid, pid, quantity)
             return resp
         } catch (err) {
             console.log(`Function updateCartProducts: ${err}`)
         }
     }
 
-    async deleteCartProductService(cid, pid) {
+    async purchasedCart(cid, email) {
         try {
-            const resp = await cs.deleteCartProduct(cid, pid)
+            const resp = await cs.purchasedCartService(cid, email)
+            return resp
+        } catch (err) {
+            console.log(`Function purchasedCart: ${err}`)
+        }
+    }
+
+    async deleteCartProduct(cid, pid) {
+        try {
+            const resp = await cs.deleteCartProductService(cid, pid)
             return resp
         } catch (err) {
             console.log(`Function deleteCartProduct: ${err}`)
         }
     }
 
-    async deleteProductsService(cid) {
+    async deleteProducts(cid) {
         try {
-            const resp = await cs.deleteProducts(cid)
+            const resp = await cs.deleteProductsService(cid)
             return resp
         } catch (err) {
             console.log(`Function deleteProducts: ${err}`)
