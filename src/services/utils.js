@@ -39,7 +39,7 @@ export const verifyRequiredBody = (requiredFields) => {
 export const filterAuth = (role) => {
     return (req, res, next) => {
         if (req.session.user === undefined) return res.redirect("/views/login")
-        else if (req.session.user.role !== role) return res.status(401).send({ status: "ERROR", payload: `Acceso no autorizado: se requiere nivel de ${role}.` });
+        else if (req.session.user.role !== role) throw new CustomError()
 
         next();
     }
