@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import config from "../config.js"
+import config, { errorsDictionary } from "../config.js"
+import CustomError from "./customError.class.js"
 
 export const createHash = password => bcrypt.hashSync(password, bcrypt.genSaltSync(10))
 
@@ -29,7 +30,7 @@ export const verifyRequiredBody = (requiredFields) => {
         const allOk = requiredFields.every(field =>
             req.body.hasOwnProperty(field) && req.body[field] !== '' && req.body[field] !== null && req.body[field] !== undefined
         );
-        if (!allOk) return res.status(400).send({ status: "ERROR", payload: 'Faltan propiedades', requiredFields });
+        if (!allOk) throw new CustomError(errorsDictionary.FEW_PARAMETERS)
         next()
     }
 }

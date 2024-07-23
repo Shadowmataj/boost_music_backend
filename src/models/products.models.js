@@ -14,7 +14,6 @@ const schema = new mongoose.Schema({
     stock: {type:Number, require: true},
     code: {type:String, require: true},
     status: {type:Boolean, require: true}
-    
 })
 
 schema.plugin(mongoosePaginate)

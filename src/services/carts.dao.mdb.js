@@ -126,10 +126,14 @@ class CartsServices {
                     else alerts.push({ id: productDetails._id, message: `Se ha reducido la cantidad de ${productDetails.title} por falta de stock.` })
                 }
 
+                // If the product is not out of stock we add this products to the final purchase array.
                 if (item.quantity > 0) newCart.push({ id: item.id, quantity: item.quantity, price: productDetails.price })
 
             }
+            //Calculating the total amount of the purchase.
             const amount = newCart.reduce((acc, item) => acc += item.price * item.quantity, 0)
+            
+            // Creating the final ticket.
             const ticket = {
                 products: newCart,
                 date: moment().format(),
@@ -138,6 +142,7 @@ class CartsServices {
                 purchaser: email
             }
 
+            //Checking the cart is not empty, creating the ticket and updating the stock on db with mongo.
             if(newCart.length > 0){
                 const purchase = await ticketModel.create(ticket)
                 for(let item of newCart){
@@ -148,8 +153,10 @@ class CartsServices {
 
                 resp.payload = `Su compra ${purchase._id} se ha finalizado.`
             } else throw new Error("El carrito de compra está vacío.")
+            // Updating the user's cart with the products that couldn't be purchased. 
             await cartModels.findByIdAndUpdate(cid, { products: incompletedPurchases })
 
+            // sending the response to the front.
             resp.alerts = alerts
             return resp
         } catch (err) {

@@ -70,6 +70,7 @@ class ProductServices {
             return { status: "ERROR", type: err }
         }
     }
+    
     //funtion to get a specific product by id
     async getProductbyIdService(pid) {
 

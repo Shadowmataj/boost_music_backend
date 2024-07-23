@@ -4,6 +4,7 @@ import { Router } from "express";
 // import { ProductManagers } from "../dao/MangersFileSystem/ProductManagers.js"
 import { ProductManagers } from "../controller/products.manager.js"
 import { filterAuth } from "../services/utils.js";
+import { generateFakeProducts } from "../faker/faker.js";
 
 
 const productsRouter = Router()
@@ -14,13 +15,13 @@ productsRouter.get("/", async (req, res) => {
     const limit = +(req.query.limit || 9)
     const page = +(req.query.page || 1)
     const sort = +(req.query.sort || 0)
-    const property  = req.query.property
+    const property = req.query.property
     const filter = req.query.filter
     const query = {}
-    if(property && filter) query[property] = filter
+    if (property && filter) query[property] = filter
     const resp = await pm.getProducts(limit, page, sort, query, property, filter)
-    if (resp.status === "OK") res.status(200).send({ status: "OK", resp: resp})
-    else if (resp.status === "ERROR") res.status(400).send({ error: `${resp.type}`})
+    if (resp.status === "OK") res.status(200).send({ status: "OK", resp: resp })
+    else if (resp.status === "ERROR") res.status(res.status).send({ status: "ERROR", error: `${resp.type}` })
     // res.status(200).send({ status: "OK", payload: productsList })
 })
 
@@ -29,13 +30,23 @@ productsRouter.get("/:pid", async (req, res) => {
     const productId = req.params.pid
     const product = await pm.getProductbyId(productId)
     if (product.status === "OK") res.status(200).send({ status: "OK", payload: product.payload })
-    else if (product.status === "ERROR") res.status(400).send({ Error: `${product.type.name}: No existe un producto con el ID: ${productId}` })
+    else if (product.status === "ERROR") res.status(400).send({ status: product.status, Error: `${product.type.name}: No existe un producto con el ID: ${productId}` })
     // FileSystem
     // product ?
     //     res.status(200).send({ status: "OK", payload: product }) :
     //     res.status(400).send({ ERROR: `ID Not found: ${productId}` })
 })
 
+//endpoint to get a list of 100 products using Mocking
+productsRouter.get("/faker/:qty", async (req, res) => {
+    try {
+        const quantity = req.params.qty || 100
+        const products = generateFakeProducts(quantity)
+        res.status(200).send({ status: "OK", payload: products })
+    } catch (err) {
+        res.status(400).send({ Error: `No no se pudo procesar la solicitud. ${err}` })
+    }
+})
 
 //endpoint to add new products. 
 productsRouter.post("/", filterAuth("admin"), async (req, res) => {

@@ -103,10 +103,11 @@ cartRouter.post("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
 
 })
 
+// endpoint to finish a purchase, filtered by the rol. 
 cartRouter.post("/:cid/purchase", filterAuth("user"), async (req, res) => {
     const cid = req.params.cid
     const email = req.session.user.email
-
+    // Using the cart controller to make de transaction.
     const resp = await cm.purchasedCart(cid, email)
     if (resp.status === "OK") res.status(200).send(resp)
     if (resp.status === "ERROR") res.status(400).send({ status: `${resp.type.name}: ${resp.type}` })
