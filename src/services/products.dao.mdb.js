@@ -66,7 +66,7 @@ class ProductServices {
 
             return result
         } catch (err) {
-            console.log(`${err}`)
+            console.log(err)
             return { status: "ERROR", type: err }
         }
     }

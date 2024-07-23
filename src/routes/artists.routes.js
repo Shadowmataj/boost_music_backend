@@ -11,6 +11,4 @@ artistsRouter.get("/", async (req, res) => {
     res.status(200).send({payload: artists}) 
 })
 
-
-
 export default artistsRouter

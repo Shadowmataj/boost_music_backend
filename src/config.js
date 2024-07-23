@@ -54,8 +54,9 @@ export const errorsDictionary = {
     PAGE_NOT_FOUND: {code: 7, status: 404, message: "No se encuentra la página solicitada."},
     DATABASE_ERROR: {code: 8, status: 500, message: "No se puede conectar a la base de datos."},
     INTERNAL_ERROR: {code: 9, status: 500, message: "Error interno de ejecución del servidor."},
-    REDORD_CREATION_ERROR: {code: 10, status: 500, message: "Error al intentar crear el registro."},
-    RECORD_CREATION_OK: {code: 11, status: 200, message: "Registro creado."},
+    AUTH_ERROR: {code: 10, status: 200, message: "Permisos insuficientes."},
+    REDORD_CREATION_ERROR: {code: 11, status: 500, message: "Error al intentar crear el registro."},
+    RECORD_CREATION_OK: {code: 12, status: 200, message: "Registro creado."},
 }
 
 

@@ -1,4 +1,4 @@
-import config, {errorsDictionary} from "../config.js"
+import {errorsDictionary} from "../config.js"
 
 const errorsHandler = (error, req, res, next) => {
     let customError = errorsDictionary[0]
