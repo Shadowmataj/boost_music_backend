@@ -54,9 +54,12 @@ export const errorsDictionary = {
     PAGE_NOT_FOUND: {code: 7, status: 404, message: "No se encuentra la página solicitada."},
     DATABASE_ERROR: {code: 8, status: 500, message: "No se puede conectar a la base de datos."},
     INTERNAL_ERROR: {code: 9, status: 500, message: "Error interno de ejecución del servidor."},
-    AUTH_ERROR: {code: 10, status: 200, message: "Permisos insuficientes."},
-    REDORD_CREATION_ERROR: {code: 11, status: 500, message: "Error al intentar crear el registro."},
-    RECORD_CREATION_OK: {code: 12, status: 200, message: "Registro creado."},
+    RECORD_CREATION_ERROR: {code: 10, status: 500, message: "Error al intentar crear el registro."},
+    RECORD_CREATION_OK: {code: 11, status: 200, message: "Registro creado."},
+    AUTH_ERROR: {code: 12, status: 401, message: "Permisos insuficientes."},
+    CART_PRODUCT_ERROR: {code: 13, status: 400, message: "El producto no se encuentra en el carrito."},
+    EMPTY_CART_ERROR: {code: 14, status: 400, message: "El carrito de compra está vacío."},
+    USER_CREATION_ERROR: {code: 15, status: 400, message: "El usuario ya está registrado."},
 }
 
 

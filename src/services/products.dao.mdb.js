@@ -1,12 +1,13 @@
 import productsModel from "../models/products.models.js"
-import config from "../config.js"
+import config, { errorsDictionary } from "../config.js"
+import CustomError from "./customError.class.js"
 
 // create a class ProductManager to manage all the products we need.
 class ProductServices {
     // the constructor creates all the elements we need in our product manager     
     // async function to add products into de data base
-    constructor(){
-        
+    constructor() {
+
     }
     async addProductService(title, description, thumbnails, price, category, stock, code, status) {
 
@@ -35,10 +36,10 @@ class ProductServices {
 
             const categories = await productsModel.distinct("category")
 
-            if(property === "availability" && filter === "true"){
-                queryProperty = {stock: {$gt: 0}}
-            } else if (property === "availability" && filter === "false"){
-                queryProperty = {stock: {$eq: 0}}                
+            if (property === "availability" && filter === "true") {
+                queryProperty = { stock: { $gt: 0 } }
+            } else if (property === "availability" && filter === "false") {
+                queryProperty = { stock: { $eq: 0 } }
             }
 
             if (sortProducts === 1 || sortProducts === -1) {
@@ -48,9 +49,9 @@ class ProductServices {
             const products = await productsModel.paginate(
                 queryProperty, options)
 
-            if (products.docs.length === 0) throw new("No existen elementos con la propiedad o el filtro seleccionados.")
-            
-            const result = { status: "OK", payload: products.docs, totalPages: products.totalPages, prevPage: products.prevPage, nextPage: products.nextPage, page: products.page, hasPrevPage: products.hasPrevPage, hasNextPage: products.hasNextPage, categories: categories}
+            if (products.docs.length === 0) throw new CustomError(errorsDictionary.INVALID_PARAMETER)
+
+            const result = { status: "OK", payload: products.docs, totalPages: products.totalPages, prevPage: products.prevPage, nextPage: products.nextPage, page: products.page, hasPrevPage: products.hasPrevPage, hasNextPage: products.hasNextPage, categories: categories }
 
             if (property) link = `${link}&property=${property}`
             if (filter) link = `${link}&filter=${filter}`
@@ -66,17 +67,15 @@ class ProductServices {
 
             return result
         } catch (err) {
-            console.log(`${err}`)
-            return { status: "ERROR", type: err }
+            return { status: "ERROR", type: err.type }
         }
     }
-    
+
     //funtion to get a specific product by id
     async getProductbyIdService(pid) {
 
         try {
             const product = await productsModel.findById(pid)
-            console.log(product)
             return { status: "OK", payload: product }
 
         } catch (err) {

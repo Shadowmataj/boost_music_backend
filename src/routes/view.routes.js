@@ -83,7 +83,8 @@ routes.get("/register", async (req, res) => {
     
     const resp = {
         styles: "index.css",
-        user: req.session.user
+        user: req.session.user,
+        showError: req.query.error ? true: false, errorMessage: req.query.error 
     }
     res.render("register", resp)
 })

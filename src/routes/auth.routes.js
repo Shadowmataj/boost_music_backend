@@ -101,7 +101,7 @@ routes.post("/register", async (req, res) => {
     const resp = await um.addUser(firstName, lastName, email, age, hashPassword)
     resp.status === "OK" ?
         res.redirect("/views/login") :
-        res.redirect("/views/register")
+        res.redirect(`/views/register?error=${encodeURI(resp.type.message)}`)
 })
 
 routes.get("/current", async (req, res) => {

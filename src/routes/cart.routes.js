@@ -67,23 +67,23 @@ cartRouter.get('/mail/sendsms', async (req, res) => {
 });
 
 // endpoint to create a new cart
-cartRouter.post("/", async (req, res) => {
-    const body = req.body
-    let resp = null
-    if (Array.isArray(body)) {
-        resp = await cm.addCart(body)
-        resp.status === "OK" ?
-            res.status(200).send({ status: "OK", idCart: resp._id, description: "Se ha creado exitósamente el carrito." }) :
-            res.status(400).send({ status: "No se ha podido generar el carrito." })
-    }
-    // File System
-    // if (Array.isArray(body)) {
-    //     resp = await cm.addCart(body)
-    //     res.status(200).send({ status: "OK", idCart: resp.id, description: "Se ha creado exitósamente el carrito" })
-    // } else {
-    //     res.status(400).send({ status: "No se ha podido generar el carrito." })
-    // }
-})
+// cartRouter.post("/", async (req, res) => {
+//     const body = req.body
+//     let resp = null
+//     if (Array.isArray(body)) {
+//         resp = await cm.addCart(body)
+//         resp.status === "OK" ?
+//             res.status(200).send({ status: "OK", idCart: resp._id, description: "Se ha creado exitósamente el carrito." }) :
+//             res.status(400).send({ status: "ERROR", error: resp.type.message })
+//     }
+//     // File System
+//     // if (Array.isArray(body)) {
+//     //     resp = await cm.addCart(body)
+//     //     res.status(200).send({ status: "OK", idCart: resp.id, description: "Se ha creado exitósamente el carrito" })
+//     // } else {
+//     //     res.status(400).send({ status: "No se ha podido generar el carrito." })
+//     // }
+// })
 
 // endpoint to add products or modify a specific cart
 cartRouter.post("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
@@ -110,7 +110,7 @@ cartRouter.post("/:cid/purchase", filterAuth("user"), async (req, res) => {
     // Using the cart controller to make de transaction.
     const resp = await cm.purchasedCart(cid, email)
     if (resp.status === "OK") res.status(200).send(resp)
-    if (resp.status === "ERROR") res.status(400).send({ status: `${resp.type.name}: ${resp.type}` })
+    if (resp.status === "ERROR") res.status(400).send({ status: resp.status, error: resp.type.message })
 })
 
 cartRouter.put("/:cid", async (req, res) => {
@@ -129,7 +129,7 @@ cartRouter.put("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
     const resp = await cm.updateCartProduct(cid, pid, quantity)
     resp.status === "OK" ?
         res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` }) :
-        res.status(400).send({ status: `${resp.type}: No se pudo realizar la operación.` })
+        res.status(400).send({ status: resp.status, error: resp.type.message})
 })
 
 cartRouter.delete("/:cid/product/:pid", async (req, res) => {
@@ -137,7 +137,7 @@ cartRouter.delete("/:cid/product/:pid", async (req, res) => {
     const resp = await cm.deleteCartProduct(cid, pid)
     resp.status === "OK" ?
         res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` }) :
-        res.status(400).send({ status: `${resp.type.name}: No se pudo realizar la operación.` })
+        res.status(400).send({ status: resp.status, error: resp.type.message })
 
     // File System***********************************
     // const resp = await cm.updateCart(cid, id, quantity)

@@ -20,8 +20,8 @@ productsRouter.get("/", async (req, res) => {
     const query = {}
     if (property && filter) query[property] = filter
     const resp = await pm.getProducts(limit, page, sort, query, property, filter)
-    if (resp.status === "OK") res.status(200).send({ status: "OK", resp: resp })
-    else if (resp.status === "ERROR") res.status(res.status).send({ status: "ERROR", error: `${resp.type}` })
+    if (resp.status === "OK") res.status(200).send({ resp })
+    else if (resp.status === "ERROR") res.status(400).send({ status: "ERROR", error: `${resp.type.message}` })
     // res.status(200).send({ status: "OK", payload: productsList })
 })
 

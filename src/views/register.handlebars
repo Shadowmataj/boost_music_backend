@@ -41,6 +41,12 @@
                 autocomplete="password">
         </div>
 
+        {{#if showError}}
+        <div class="alert alert-danger" role="alert" style="margin-top: 16px;">
+            {{ errorMessage }}
+        </div>
+        {{/if}} 
+
         <button type="submit" class="btn btn-success btn-100">Registrarse</button>
 
         {{#if msg}}
