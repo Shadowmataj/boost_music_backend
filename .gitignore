@@ -1,5 +1,2 @@
 /node_modules
 /sessions
-
-.env.devel
-.env.prod
