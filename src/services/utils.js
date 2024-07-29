@@ -29,8 +29,10 @@ export const verifyRequiredBody = (requiredFields) => {
     return (req, res, next) => {
         const allOk = requiredFields.every(field =>
             req.body.hasOwnProperty(field) && req.body[field] !== '' && req.body[field] !== null && req.body[field] !== undefined
-        );
-        if (!allOk) throw new CustomError(errorsDictionary.FEW_PARAMETERS)
+        )
+        if (!allOk) {
+            throw new CustomError(errorsDictionary.FEW_PARAMETERS)
+        }
         next()
     }
 }
@@ -40,7 +42,6 @@ export const filterAuth = (role) => {
     return (req, res, next) => {
         if (req.session.user === undefined) return res.redirect("/views/login")
         else if (req.session.user.role !== role) throw new CustomError(errorsDictionary.AUTH_ERROR)
-
         next();
     }
 }

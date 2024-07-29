@@ -5,6 +5,7 @@
   "main": "app",
   "type": "module",
   "scripts": {
+    "dev": "nodemon --env-file=.env.devel src/app --ignore sessions",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -33,6 +34,7 @@
     "session-file-store": "^1.5.0",
     "socket.io": "^4.7.5",
     "toastify-js": "^1.12.0",
-    "twilio": "^5.2.2"
+    "twilio": "^5.2.2",
+    "winston": "^3.13.1"
   }
 }

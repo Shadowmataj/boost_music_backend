@@ -48,7 +48,6 @@ class CartsServices {
                     quantity: quantity
                 }
                 cartProducts.push(item)
-                console.log(cartProducts)
                 cartUpdated = await cartModels.findByIdAndUpdate(cid, { products: cartProducts, date: date })
             }
             return { status: "OK", payload: cartUpdated }
@@ -186,7 +185,6 @@ class CartsServices {
             await cartModels.findByIdAndUpdate(cid, { products: [] })
             return { status: "OK", payload: "Se han eliminado los productos del carrito." }
         } catch (err) {
-            console.log(`${err}`)
             return { status: "ERROR", type: err }
         }
     }

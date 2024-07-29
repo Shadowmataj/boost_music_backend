@@ -125,7 +125,6 @@ cartRouter.put("/:cid", async (req, res) => {
 cartRouter.put("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
     const { pid, cid } = req.params
     const quantity = req.body.quantity || 1
-    console.log(pid, cid, quantity)
     const resp = await cm.updateCartProduct(cid, pid, quantity)
     resp.status === "OK" ?
         res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` }) :

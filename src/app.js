@@ -19,6 +19,7 @@ import productsRoutes from "./routes/products.routes.js"
 import authRoutes from "./routes/auth.routes.js"
 import viewRoutes from "./routes/view.routes.js"
 import errorsHandler from "./services/errors.handler.js"
+import { addLogger } from "./services/logger.js"
 try {
     const app = express()
     const fileStorage = fileStore(session)
@@ -55,6 +56,7 @@ try {
     app.use(passport.session())
     
     // end points configuration
+    app.use(addLogger)
     app.use("/api/products", productsRoutes)
     app.use("/api/carts", cartRoutes)
     app.use("/api/artists", artistsRoutes)

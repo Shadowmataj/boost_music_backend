@@ -38,7 +38,7 @@ export class UsersServices {
             return user[0]
 
         } catch (err) {
-            console.log(`${err}`)
+           return {status: "ERROR", type: err.message}
         }
     }
 

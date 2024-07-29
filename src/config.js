@@ -32,7 +32,7 @@ const config = {
     GITHUB_CALL_BACK: process.env.GITHUB_CALL_BACK,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    GOOGLE_CALL_BACK: process.env.GITHUB_CALL_BACK,
+    GOOGLE_CALL_BACK: process.env.GOOGLE_CALL_BACK,
     PERSISTENCE: process.env.PERSISTENCE,
     GMAIL_MAIL: process.env.GMAIL_MAIL,
     GMAIL_APP_PASS: process.env.GMAIL_APP_PASS,

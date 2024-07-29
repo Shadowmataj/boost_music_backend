@@ -84,7 +84,7 @@ routes.get("/gglogincallback", passport.authenticate("ggllogin", { failureRedire
     try {
         req.session.user = req.user
         req.session.save(err => {
-            if (err) return res.status(500).send({ origin: config.SERVER, payload: null, error: err.message });
+            if (err) return res.status(500).send({ status: "OK", payload: null, error: err.message });
             res.redirect("/views/profile")
         })
     }
@@ -125,7 +125,6 @@ routes.post("/logout", async (req, res) => {
             res.redirect("/views/login")
         })
     } catch (err) {
-        console.log(`${err}`)
         res.status(500).send({ status: "ERROR", type: err })
     }
 })
