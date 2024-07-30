@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --env-file=.env.devel src/app --ignore sessions",
+    "prod": "nodemon --env-file=.env.prod src/app --ignore sessions", 
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

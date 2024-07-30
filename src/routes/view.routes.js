@@ -1,4 +1,6 @@
 import { Router } from "express";
+import moment from "moment";
+
 import cartsModel from "../models/cart.models.js";
 import messagesModel from "../models/messages.models.js";
 import productsModel from "../models/products.models.js";
@@ -15,18 +17,20 @@ routes.get("/", async (req, res) => {
         products: data
     }
     res.render("home", resp)
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
 })
 
 routes.get("/products", async (req, res) => {
     // const data = await JSON.parse(fs.readFileSync(config.THIS_PATH_PRODUCTS))
-    const page = +(req.query.page||1)
-    const data = await productsModel.paginate({}, {page:page,limit:10, lean: true})
+    const page = +(req.query.page || 1)
+    const data = await productsModel.paginate({}, { page: page, limit: 10, lean: true })
     const resp = {
         styles: "index.css",
         products: data
     }
-    if(req.session.user) resp["user"] = req.session.user
+    if (req.session.user) resp["user"] = req.session.user
     res.render("products", resp)
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
 })
 
 routes.get("/products/:pid", async (req, res) => {
@@ -38,6 +42,7 @@ routes.get("/products/:pid", async (req, res) => {
         product: data
     }
     res.render("productsDetails", resp)
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
 })
 
 // endpoint to get a habdlerbar that shows the product list in real time. 
@@ -48,8 +53,9 @@ routes.get("/realtimeproducts", async (req, res) => {
         styles: "index.css",
         products: data
     }
-    if(req.session.user) resp["user"] = req.session.user
+    if (req.session.user) resp["user"] = req.session.user
     res.render("realTimeProducts", resp)
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
 })
 
 routes.get("/chat", filterAuth("user"), async (req, res) => {
@@ -60,43 +66,49 @@ routes.get("/chat", filterAuth("user"), async (req, res) => {
         messages: data
     }
     res.render("chat", resp)
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
 })
 
 routes.get("/carts/:cid", async (req, res) => {
     const cartId = req.params.cid
-    const data = await cartsModel.findById(cartId).populate({path: "products.id", model: productsModel}).lean()
+    const data = await cartsModel.findById(cartId).populate({ path: "products.id", model: productsModel }).lean()
     const resp = {
         styles: "index.css",
         cart: data
     }
     res.render("carts", resp)
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
 })
 
 routes.get("/login", async (req, res) => {
-    if(req.session.user){
+    if (req.session.user) {
         res.redirect("/views/profile")
     }
-    res.render("login", {styles: "index.css", showError: req.query.error ? true: false, errorMessage: req.query.error })
+    res.render("login", { styles: "index.css", showError: req.query.error ? true : false, errorMessage: req.query.error })
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
 })
 
 routes.get("/register", async (req, res) => {
-    
+
     const resp = {
         styles: "index.css",
         user: req.session.user,
-        showError: req.query.error ? true: false, errorMessage: req.query.error 
+        showError: req.query.error ? true : false, errorMessage: req.query.error
     }
     res.render("register", resp)
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
+
 })
 
 routes.get("/profile", async (req, res) => {
-    if(!req.session.user){
+    if (!req.session.user) {
         res.redirect("/views/login")
-    } 
+    }
     const resp = {
         styles: "index.css",
         user: req.session.user
     }
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
     return res.render("profile", resp)
 })
 

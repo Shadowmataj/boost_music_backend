@@ -1,6 +1,7 @@
 // *****PRODUCTS ROUTES FILE ******
 
 import { Router } from "express";
+import moment from "moment";
 // import { ProductManagers } from "../dao/MangersFileSystem/ProductManagers.js"
 import { ProductManagers } from "../controller/products.manager.js"
 import { filterAuth } from "../services/utils.js";
@@ -19,18 +20,37 @@ productsRouter.get("/", async (req, res) => {
     const filter = req.query.filter
     const query = {}
     if (property && filter) query[property] = filter
-    const resp = await pm.getProducts(limit, page, sort, query, property, filter)
-    if (resp.status === "OK") res.status(200).send({ resp })
-    else if (resp.status === "ERROR") res.status(400).send({ status: "ERROR", error: `${resp.type.message}` })
+    try {
+        const resp = await pm.getProducts(limit, page, sort, query, property, filter)
+        if (resp.status === "OK") {
+            req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}products/`)
+            res.status(200).send({ resp })
+        } else if (resp.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${resp.type.message}`)
+            res.status(400).send({ status: "ERROR", error: `${resp.type.message}` })
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
+    }
     // res.status(200).send({ status: "OK", payload: productsList })
 })
 
 // endpoint to get a specific product filtered by the id
 productsRouter.get("/:pid", async (req, res) => {
     const productId = req.params.pid
-    const product = await pm.getProductbyId(productId)
-    if (product.status === "OK") res.status(200).send({ status: "OK", payload: product.payload })
-    else if (product.status === "ERROR") res.status(400).send({ status: product.status, Error: `${product.type.name}: No existe un producto con el ID: ${productId}` })
+    try {
+        const product = await pm.getProductbyId(productId)
+        if (product.status === "OK") {
+            req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
+            res.status(200).send({ status: "OK", payload: product.payload })
+        }
+        else if (product.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${product.type.name}`)
+            res.status(400).send({ status: product.status, Error: `${product.type.name}: No existe un producto con el ID: ${productId}` })
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
+    }
     // FileSystem
     // product ?
     //     res.status(200).send({ status: "OK", payload: product }) :
@@ -39,11 +59,13 @@ productsRouter.get("/:pid", async (req, res) => {
 
 //endpoint to get a list of 100 products using Mocking
 productsRouter.get("/faker/:qty", async (req, res) => {
+    const quantity = req.params.qty || 100
     try {
-        const quantity = req.params.qty || 100
         const products = generateFakeProducts(quantity)
+        req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
         res.status(200).send({ status: "OK", payload: products })
     } catch (err) {
+        req.logger.info(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
         res.status(400).send({ Error: `No no se pudo procesar la solicitud. ${err}` })
     }
 })
@@ -52,13 +74,19 @@ productsRouter.get("/faker/:qty", async (req, res) => {
 productsRouter.post("/", filterAuth("admin"), async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
-    const resp = await pm.addProduct(title, description, thumbnails, price, category, stock, code, status)
-    if (resp.status === "OK") {
-        res.status(200).send({ status: resp.payload })
-        const productsList = await pm.getProducts(0)
-        socketServer.emit("update_for_all", productsList)
-    } else {
-        res.status(400).send({ ERROR: `${resp.type}` })
+    try {
+        const resp = await pm.addProduct(title, description, thumbnails, price, category, stock, code, status)
+        if (resp.status === "OK") {
+            res.status(200).send({ status: resp.payload })
+            const productsList = await pm.getProducts(0)
+            socketServer.emit("update_for_all", productsList)
+            req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
+        } else if (resp.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} ${req.url} api/products${resp.type}`)
+            res.status(400).send({ ERROR: `${resp.type}` })
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
     }
     // FileSystem
     // if (resp) {
@@ -73,9 +101,18 @@ productsRouter.post("/", filterAuth("admin"), async (req, res) => {
 productsRouter.put("/:pid", filterAuth("admin"), async (req, res) => {
     const id = req.params.pid
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
-    const resp = await pm.updateProduct(id, title, description, price, thumbnails, code, stock, status, category)
-    if (resp.status === "OK") res.status(200).send({ status: `El producto con ID ${id} ha sido actualizado exitosamente` })
-    else if (resp.status === "ERROR") res.status(400).send({ Error: `${resp.type.name}: No existe un producto con el ID: ${id}` })
+    try {
+        const resp = await pm.updateProduct(id, title, description, price, thumbnails, code, stock, status, category)
+        if (resp.status === "OK") {
+            req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
+            res.status(200).send({ status: `El producto con ID ${id} ha sido actualizado exitosamente` })
+        } else if (resp.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${resp.type.name}`)
+            res.status(400).send({ Error: `${resp.type.name}: No existe un producto con el ID: ${id}` })
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
+    }
     // FileSystem
     // resp ?
     // res.status(200).send({ status: `El producto con ID ${productId} ha sido actualizado exitosamente` }) :
@@ -86,13 +123,20 @@ productsRouter.put("/:pid", filterAuth("admin"), async (req, res) => {
 productsRouter.delete("/:pid", filterAuth("admin"), async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const id = req.params.pid
-    const resp = await pm.deleteProduct(id)
-    if (resp.status === "OK") {
-        res.status(200).send({ status: `El producto con ID ${id} ha sido eliminado exitosamente` })
-        const productsList = await pm.getProducts(0)
-        socketServer.emit("update_for_all", productsList)
-    } else {
-        res.status(400).send({ ERROR: `El producto con ID ${id} no existe.` })
+    try{
+        const resp = await pm.deleteProduct(id)
+        if (resp.status === "OK") {
+            req.logger.info(`${new moment().format()} ${req.method} ${req.url}`)
+            res.status(200).send({ status: `El producto con ID ${id} ha sido eliminado exitosamente` })
+            const productsList = await pm.getProducts(0)
+            socketServer.emit("update_for_all", productsList)
+            req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
+        } else if (resp.status === "ERROR"){
+            req.logger.error(`${new moment().format()} ${req.method} api/products${req.url}`)
+            res.status(400).send({ ERROR: `El producto con ID ${id} no existe.` })
+        }
+    } catch (err){
+        req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
     }
     // FileSystem
     // if (resp) {

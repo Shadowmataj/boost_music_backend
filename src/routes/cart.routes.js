@@ -1,6 +1,7 @@
 // *****CARTS ROUTES FILE ******
 
 import { Router } from "express";
+import moment from "moment";
 // import { CartsManagers } from "../CartsManagers.js";
 import { CartsManagers } from "../controller/carts.manager.js"
 
@@ -26,14 +27,23 @@ const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKE
 cartRouter.get("/:cid", async (req, res) => {
     const id = req.params.cid
 
-    const resp = await cm.getCartById(id)
-    // resp.status === "OK" ?
-    //     res.status(200).send({ status: "OK", payload: resp.payload }) :
-    //     res.status(400).send({ status: `${resp.type.name}: No existe un carrito con el ID: ${id}.` })
-    // FileSystem
-    resp ?
-        res.status(200).send({ status: "OK", payload: resp }) :
-        res.status(400).send({ status: `El carrito no existe.` })
+    try {
+        const resp = await cm.getCartById(id)
+        // resp.status === "OK" ?
+        //     res.status(200).send({ status: "OK", payload: resp.payload }) :
+        //     res.status(400).send({ status: `${resp.type.name}: No existe un carrito con el ID: ${id}.` })
+        // FileSystem
+        console.log(resp.type)
+        if (resp) {
+            req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
+            res.status(200).send({ status: "OK", payload: resp })
+        } else {
+            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+            res.status(400).send({ status: `El carrito no existe.` })
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+    }
 })
 
 cartRouter.get('/mail/sendmail', async (req, res) => {
@@ -48,7 +58,9 @@ cartRouter.get('/mail/sendmail', async (req, res) => {
             `
         })
         res.status(200).send({ status: 'OK', data: confirmation });
+        req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
     } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method}api/carts${req.url} ${err}`)
         res.status(500).send({ status: 'ERR', data: err.message });
     }
 });
@@ -60,8 +72,10 @@ cartRouter.get('/mail/sendsms', async (req, res) => {
             from: config.TWILIO_PHONE_NUMBER,
             to: "+52 55 6889 7613"
         })
+        req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
         res.status(200).send({ status: 'OK', data: confirmation });
     } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
         res.status(500).send({ status: 'ERR', data: err.message });
     }
 });
@@ -90,9 +104,19 @@ cartRouter.post("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
     const { pid, cid } = req.params
     const quantity = req.body.quantity || 1
 
-    const resp = await cm.updateCart(cid, pid, quantity)
-    if (resp.status === "OK") res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` })
-    if (resp.status === "ERROR") res.status(400).send({ status: `${resp.type.name}: ${resp.type}` })
+    try {
+        const resp = await cm.updateCart(cid, pid, quantity)
+        if (resp.status === "OK") {
+            req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
+            res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` })
+        }
+        if (resp.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type}`)
+            res.status(400).send({ status: `${resp.type.name}: ${resp.type}` })
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+    }
 
     // File System***********************************
     // const resp = await cm.updateCart(cid, id, quantity)
@@ -108,35 +132,75 @@ cartRouter.post("/:cid/purchase", filterAuth("user"), async (req, res) => {
     const cid = req.params.cid
     const email = req.session.user.email
     // Using the cart controller to make de transaction.
-    const resp = await cm.purchasedCart(cid, email)
-    if (resp.status === "OK") res.status(200).send(resp)
-    if (resp.status === "ERROR") res.status(400).send({ status: resp.status, error: resp.type.message })
+    try {
+        const resp = await cm.purchasedCart(cid, email)
+        if (resp.status === "OK") {
+            req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
+            res.status(200).send(resp)
+        }
+        if (resp.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type.message}`)
+            res.status(400).send({ status: resp.status, error: resp.type.message })
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+    }
 })
 
 cartRouter.put("/:cid", async (req, res) => {
     const { cid } = req.params
     const body = req.body
-    const resp = await cm.addCartProducts(cid, body)
-    resp.status === "OK" ?
-        res.status(200).send({ status: `El carrito ${cid} fue actualizado de forma exitosa.` }) :
-        res.status(400).send({ status: `${resp.type.name}: No se pudo realizar la operación.` })
+
+    try {
+        const resp = await cm.addCartProducts(cid, body)
+        if (resp.status === "OK") {
+            req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
+            res.status(200).send({ status: `El carrito ${cid} fue actualizado de forma exitosa.` })
+        }
+        if (resp.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type.name}`)
+            res.status(400).send({ status: `${resp.type.name}: No se pudo realizar la operación.` })
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+    }
 })
 
 cartRouter.put("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
     const { pid, cid } = req.params
     const quantity = req.body.quantity || 1
-    const resp = await cm.updateCartProduct(cid, pid, quantity)
-    resp.status === "OK" ?
-        res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` }) :
-        res.status(400).send({ status: resp.status, error: resp.type.message})
+    try {
+        const resp = await cm.updateCartProduct(cid, pid, quantity)
+        if (resp.status === "OK") {
+            req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
+            res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` })
+        }
+        if (resp.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url}`)
+            res.status(400).send({ status: resp.status, error: resp.type.message })
+        }
+
+    }catch (err){
+        req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+    }
 })
 
 cartRouter.delete("/:cid/product/:pid", async (req, res) => {
     const { pid, cid } = req.params
-    const resp = await cm.deleteCartProduct(cid, pid)
-    resp.status === "OK" ?
-        res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` }) :
-        res.status(400).send({ status: resp.status, error: resp.type.message })
+    try{
+        
+        const resp = await cm.deleteCartProduct(cid, pid)
+        if(resp.status === "OK"){
+            req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
+            res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` })
+        }
+        if(resp.status === "ERROR"){
+            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type.message}`)
+            res.status(400).send({ status: resp.status, error: resp.type.message })
+        }
+    }catch(err){
+        req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+    }
 
     // File System***********************************
     // const resp = await cm.updateCart(cid, id, quantity)
@@ -149,10 +213,19 @@ cartRouter.delete("/:cid/product/:pid", async (req, res) => {
 
 cartRouter.delete("/:cid", async (req, res) => {
     const { cid } = req.params
-    const resp = await cm.deleteProducts(cid)
-    resp.status === "OK" ?
-        res.status(200).send({ status: `Se eliminaron los productos del carrito ${cid} de forma exitosa.` }) :
-        res.status(400).send({ status: `${resp.type.name}: No se pudo realizar la operación.` })
+    try{
+        const resp = await cm.deleteProducts(cid)
+        if(resp.status === "OK"){
+            req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
+            res.status(200).send({ status: `Se eliminaron los productos del carrito ${cid} de forma exitosa.` })
+        }
+        if(resp.status === "ERROR"){
+            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type.name}`)
+            res.status(400).send({ status: `${resp.type.name}: No se pudo realizar la operación.` })
+        }
+    } catch (err){
+        req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+    }
 
     // File System***********************************
     // const resp = await cm.updateCart(cid, id, quantity)

@@ -19,7 +19,9 @@ import productsRoutes from "./routes/products.routes.js"
 import authRoutes from "./routes/auth.routes.js"
 import viewRoutes from "./routes/view.routes.js"
 import errorsHandler from "./services/errors.handler.js"
-import { addLogger } from "./services/logger.js"
+import addLogger from "./services/logger.js"
+import loggerRoutes from "./routes/logger.routes.js"
+
 try {
     const app = express()
     const fileStorage = fileStore(session)
@@ -57,6 +59,7 @@ try {
     
     // end points configuration
     app.use(addLogger)
+    app.use("/logger", loggerRoutes)
     app.use("/api/products", productsRoutes)
     app.use("/api/carts", cartRoutes)
     app.use("/api/artists", artistsRoutes)
@@ -64,6 +67,7 @@ try {
     app.use("/api/brands", brandsRoutes)
     app.use("/views", viewRoutes)
     app.use("/auth", authRoutes)
+
     // access to static content
     app.use('/static', express.static(`${config.DIRNAME}/public`));
     app.use(errorsHandler)
