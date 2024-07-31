@@ -84,8 +84,10 @@ routes.get("/login", async (req, res) => {
     if (req.session.user) {
         res.redirect("/views/profile")
     }
+    req.query.error ? 
+        req.logger.warning(`${new moment().format()} ${req.method} views/login error: ${req.query.error}`):
+        req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
     res.render("login", { styles: "index.css", showError: req.query.error ? true : false, errorMessage: req.query.error })
-    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
 })
 
 routes.get("/register", async (req, res) => {

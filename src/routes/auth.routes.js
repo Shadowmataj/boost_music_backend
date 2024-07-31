@@ -49,9 +49,9 @@ routes.post("/sessionslogin", verifyRequiredBody(["email", "password"]), passpor
                 req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
                 return res.status(500).send({ origin: config.SERVER, payload: null, error: err.message });
             }
+            req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
             res.redirect("/views/profile")
         })
-        req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
     }
     catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
