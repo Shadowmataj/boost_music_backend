@@ -69,7 +69,7 @@ export class UsersServices {
                     subject: "Cambio de contraseña",
                     html: `
                     <h1>Te enviamos el link para reestablecer tu contraseña:</h1>
-                    <a>http://localhost:8080/views/passwordchange/${recoveryId._id}</a>
+                    <a href ="http://localhost:8080/views/passwordchange/${recoveryId._id}">Cambio de contraseña</a>
                     `
                 })
             } else return { status: "ERROR", type: "El usuario no está registrado." }
