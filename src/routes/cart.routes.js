@@ -9,6 +9,7 @@ import config from "../config.js";
 import nodemailer from "nodemailer"
 import twilio from "twilio"
 import { filterAuth } from "../services/utils.js";
+import productsModel from "../models/products.models.js"
 
 const cartRouter = Router()
 const cm = new CartsManagers()
@@ -81,6 +82,7 @@ cartRouter.get('/mail/sendsms', async (req, res) => {
 });
 
 // endpoint to create a new cart
+
 // cartRouter.post("/", async (req, res) => {
 //     const body = req.body
 //     let resp = null
@@ -100,12 +102,14 @@ cartRouter.get('/mail/sendsms', async (req, res) => {
 // })
 
 // endpoint to add products or modify a specific cart
-cartRouter.post("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
-    const { pid, cid } = req.params
+
+cartRouter.post("/product/:pid", filterAuth(["user", "premium"]), async (req, res) => {
+    const { pid } = req.params
     const quantity = req.body.quantity || 1
 
     try {
-        const resp = await cm.updateCart(cid, pid, quantity)
+        if(!req.session.user) res.redirect("/views/login")
+        const resp = await cm.updateCart(req.session.user.cart, pid, quantity, req.session.user.email)
         if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
             res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` })
@@ -128,12 +132,13 @@ cartRouter.post("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
 })
 
 // endpoint to finish a purchase, filtered by the rol. 
-cartRouter.post("/:cid/purchase", filterAuth("user"), async (req, res) => {
-    const cid = req.params.cid
+cartRouter.post("/purchase", filterAuth(["user", "premium"]), async (req, res) => {
+    
     const email = req.session.user.email
     // Using the cart controller to make de transaction.
     try {
-        const resp = await cm.purchasedCart(cid, email)
+        if(!req.session.user) res.redirect("/views/login")
+        const resp = await cm.purchasedCart(req.session.user.cart, email)
         if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
             res.status(200).send(resp)
@@ -166,7 +171,7 @@ cartRouter.put("/:cid", async (req, res) => {
     }
 })
 
-cartRouter.put("/:cid/product/:pid", filterAuth("user"), async (req, res) => {
+cartRouter.put("/:cid/product/:pid", filterAuth(["user", "premium"]), async (req, res) => {
     const { pid, cid } = req.params
     const quantity = req.body.quantity || 1
     try {

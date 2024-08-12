@@ -71,11 +71,14 @@ productsRouter.get("/faker/:qty", async (req, res) => {
 })
 
 //endpoint to add new products. 
-productsRouter.post("/", filterAuth("admin"), async (req, res) => {
+productsRouter.post("/", filterAuth(["admin", "premium"]), async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
     try {
-        const resp = await pm.addProduct(title, description, thumbnails, price, category, stock, code, status)
+        const item = await pm.productDTO(title, description, thumbnails, price, category, stock, code, status)
+        if (req.session.user.role === "premium") item.owner = req.session.user.email
+        const resp = await pm.addProduct(item)
+
         if (resp.status === "OK") {
             res.status(200).send({ status: resp.payload })
             const productsList = await pm.getProducts(0)
@@ -98,20 +101,24 @@ productsRouter.post("/", filterAuth("admin"), async (req, res) => {
 })
 
 // endpoint to update a specific product
-productsRouter.put("/:pid", filterAuth("admin"), async (req, res) => {
+productsRouter.put("/:pid", filterAuth(["admin", "premium"]), async (req, res) => {
     const id = req.params.pid
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
+    let resp = undefined
     try {
-        const resp = await pm.updateProduct(id, title, description, price, thumbnails, code, stock, status, category)
+        const product = await pm.getProductbyId(id)
+        if (req.session.user.role === "admin" || (req.session.user.role === "premium" && req.session.user.email === product.payload.owner)) resp = await pm.updateProduct(id, title, description, price, thumbnails, code, stock, status, category)
+        else throw new Error("El producto no puede ser actualizado por el usuario ya que no le pertenece.")
         if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
             res.status(200).send({ status: `El producto con ID ${id} ha sido actualizado exitosamente` })
         } else if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${resp.type.name}`)
-            res.status(400).send({ Error: `${resp.type.name}: No existe un producto con el ID: ${id}` })
+            throw new Error(`No existe un producto con el ID: ${id}`)
         }
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
+        res.status(400).send({ status: "ERROR", type: `${err}` })
     }
     // FileSystem
     // resp ?
@@ -120,23 +127,27 @@ productsRouter.put("/:pid", filterAuth("admin"), async (req, res) => {
 })
 
 // Endpoint to delete a specifc product using the id
-productsRouter.delete("/:pid", filterAuth("admin"), async (req, res) => {
+productsRouter.delete("/:pid", filterAuth(["admin", "premium"]), async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const id = req.params.pid
-    try{
-        const resp = await pm.deleteProduct(id)
+    let resp = undefined
+    try {
+        const product = await pm.getProductbyId(id)
+        if (req.session.user.role === "admin" || (req.session.user.role === "premium" && req.session.user.email === product.payload.owner)) resp = await pm.deleteProduct(id)
+        else throw new Error("El producto no puede ser eliminado por el usuario ya que no le pertenece.")
         if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} ${req.url}`)
             res.status(200).send({ status: `El producto con ID ${id} ha sido eliminado exitosamente` })
             const productsList = await pm.getProducts(0)
             socketServer.emit("update_for_all", productsList)
             req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
-        } else if (resp.status === "ERROR"){
+        } else if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} api/products${req.url}`)
-            res.status(400).send({ ERROR: `El producto con ID ${id} no existe.` })
+            throw new Error(`El producto con ID ${id} no existe.`)
         }
-    } catch (err){
+    } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
+        res.status(400).send({ status: "ERROR", type: `${err}` })
     }
     // FileSystem
     // if (resp) {

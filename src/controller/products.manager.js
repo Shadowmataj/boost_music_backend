@@ -2,13 +2,29 @@ import { ProductsServices } from "../services/dao.factory.js"
 
 
 const ps = new ProductsServices()
+
 // create a class ProductManager to manage all the products we need.
 export class ProductManagers {
+
+    async productDTO(title, description, thumbnails, price, category, stock, code, status) {
+        const item = {
+            title: title,
+            description: description,
+            thumbnails: thumbnails,
+            price: price,
+            category: category,
+            stock: stock,
+            code: code,
+            status: status,
+        }
+
+        return item
+    }
     // the constructor creates all the elements we need in our product manager     
     // async function to add products into de data base
-    async addProduct(title, description, thumbnails, price, category, stock, code, status) {
+    async addProduct(item) {
         try {
-            const resp = await ps.addProductService(title, description, thumbnails, price, category, stock, code, status)
+            const resp = await ps.addProductService(item)
             return resp
         } catch (err) {
             console.log(`Function addProduct: ${err}`)

@@ -31,13 +31,16 @@ class CartsServices {
         }
     }
 
-    async updateCartService(cid, pid, quantity) {
+    async updateCartService(cid, pid, quantity, email) {
         try {
             const cart = await cartModels.findById(cid)
             let cartUpdated = null
             const date = moment().format()
-            await productsModel.findOne({ _id: pid })
-            const cartProducts = [...cart.products]
+            const product = await productsModel.findOne({ _id: pid })
+            
+            if (email === product.owner) throw new Error("No puedes agregar tus propios artículos al carrito.")
+            
+                const cartProducts = [...cart.products]
             const productIndex = cartProducts.findIndex(item => item.id === pid)
             if (productIndex != -1) {
                 cartProducts[productIndex].quantity = cartProducts[productIndex].quantity + quantity
@@ -112,13 +115,13 @@ class CartsServices {
             const alerts = [] //To comunicate with the frontend, and letit know what products could not be purchased.
             let resp = { status: "OK" }
 
-            
+
             for (const item of cart.products) {
                 // Geting the information from the product. 
                 const productDetails = await productsModel.findById(item.id, "_id stock title price").lean()
                 //Fix the stock availability and what products may be purchased.
                 if (item.quantity > productDetails.stock || productDetails.stock === 0) {
-                    incompletedPurchases.push({id: item.id, quantity: item.quantity - productDetails.stock}) 
+                    incompletedPurchases.push({ id: item.id, quantity: item.quantity - productDetails.stock })
                     item.quantity = productDetails.stock
                     if (item.quantity === 0) alerts.push({ id: productDetails._id, message: `Se ha eliminado el artículo ${productDetails.title} por falta de stock.` })
                     else alerts.push({ id: productDetails._id, message: `Se ha reducido la cantidad de ${productDetails.title} por falta de stock.` })
@@ -130,7 +133,7 @@ class CartsServices {
             }
             //Calculating the total amount of the purchase.
             const amount = newCart.reduce((acc, item) => acc += item.price * item.quantity, 0)
-            
+
             // Creating the final ticket.
             const ticket = {
                 products: newCart,
@@ -141,12 +144,12 @@ class CartsServices {
             }
 
             //Checking the cart is not empty, creating the ticket and updating the stock on db with mongo.
-            if(newCart.length > 0){
+            if (newCart.length > 0) {
                 const purchase = await ticketModel.create(ticket)
-                for(let item of newCart){
+                for (let item of newCart) {
                     const product = await productsModel.findById(item.id, "-_id stock").lean()
                     const updatedStock = product.stock - item.quantity
-                    await productsModel.findByIdAndUpdate(item.id, {stock: updatedStock})
+                    await productsModel.findByIdAndUpdate(item.id, { stock: updatedStock })
                 }
 
                 resp.payload = `Su compra ${purchase._id} se ha finalizado.`

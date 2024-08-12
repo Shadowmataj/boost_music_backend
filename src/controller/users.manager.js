@@ -27,4 +27,31 @@ export class usersManagers {
         }
     }
 
+    async userPasswordRecovery(email) {
+        try {
+            const resp = await us.userPasswordRecoveryService(email)
+            return resp
+        } catch (err) {
+            console.log(`Function userPasswordRecovery: ${err}`)
+        }
+    }
+
+    async userPasswordChange(prid, newPassword) {
+        try {
+            const resp = await us.userPasswordChangeService(prid, newPassword)
+            return resp
+        } catch (err) {
+            console.log(`Function userPasswordChange: ${err}`)
+        }
+    }
+
+    async updateUser(uid) {
+        try {
+            const resp = await us.updateUserService(uid)
+            return resp
+        } catch (err) {
+            console.log(`Function updateUser: ${err}`)
+        }
+    }
+
 }

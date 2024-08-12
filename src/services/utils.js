@@ -38,10 +38,12 @@ export const verifyRequiredBody = (requiredFields) => {
 }
 
 // Middleware to authoraize the acceses depending on the user's rol
-export const filterAuth = (role) => {
+export const filterAuth = (roles) => {
     return (req, res, next) => {
         if (req.session.user === undefined) return res.redirect("/views/login")
-        else if (req.session.user.role !== role) throw new CustomError(errorsDictionary.AUTH_ERROR)
+        else if (!roles.some(role => req.session.user.role === role)) {
+            throw new CustomError(errorsDictionary.AUTH_ERROR)
+        }
         next();
     }
 }

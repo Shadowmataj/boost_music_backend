@@ -9,19 +9,9 @@ class ProductServices {
     constructor() {
 
     }
-    async addProductService(title, description, thumbnails, price, category, stock, code, status) {
+    async addProductService(item) {
 
         try {
-            const item = {
-                title: title,
-                description: description,
-                thumbnails: thumbnails,
-                price: price,
-                category: category,
-                stock: stock,
-                code: code,
-                status: status,
-            }
             await productsModel.create(item)
             return { status: "OK", payload: "El producto ha sido agregado exitosamente" }
         } catch (err) {

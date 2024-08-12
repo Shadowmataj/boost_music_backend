@@ -81,6 +81,7 @@ routes.get("/carts/:cid", async (req, res) => {
 })
 
 routes.get("/login", async (req, res) => {
+    
     if (req.session.user) {
         res.redirect("/views/profile")
     }
@@ -112,6 +113,31 @@ routes.get("/profile", async (req, res) => {
     }
     req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
     return res.render("profile", resp)
+})
+
+routes.get("/passwordrecovery", async (req, res) => {
+    
+    if (req.session.user) {
+        res.redirect("/views/profile")
+    }
+    const resp = {
+        styles: "index.css",
+        showError: req.query.error ? true : false, 
+        errorMessage: req.query.error
+    }
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
+    return res.render("passwordRecovery", resp)
+})
+
+routes.get("/passwordchange/:prid", async (req, res) => {
+    const resp = {
+        styles: "index.css",
+        prid: `/auth/passwordchange/${req.params.prid}`,
+        showError: req.query.error ? true : false, 
+        errorMessage: req.query.error
+    }
+    req.logger.info(`${new moment().format()} ${req.method} views${req.url}`)
+    return res.render("passwordChange", resp)
 })
 
 

@@ -22,9 +22,9 @@ export class CartsManagers {
         }
     }
 
-    async updateCart(cid, pid, quantity) {
+    async updateCart(cid, pid, quantity, email) {
         try {
-            const resp = await cs.updateCartService(cid, pid, quantity)
+            const resp = await cs.updateCartService(cid, pid, quantity, email)
             return resp
         } catch (err) {
             console.log(`Function updateCart: ${err}`)

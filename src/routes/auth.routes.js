@@ -1,11 +1,12 @@
 import { Router } from "express";
-import passport from "passport";
 import moment from "moment";
+import passport from "passport";
 
 import initAuthStrategies from "../auth/passport.strategies.js";
+import config from "../config.js";
 import { usersManagers } from "../controller/users.manager.js";
-import { createHash, isValidPassword, verifyRequiredBody, createToken } from "../services/utils.js";
-
+import { createHash, createToken, filterAuth, isValidPassword, verifyRequiredBody } from "../services/utils.js";
+import usersModel from "../models/users.model.js"
 
 const routes = Router()
 const um = new usersManagers()
@@ -43,7 +44,7 @@ routes.post("/login", verifyRequiredBody(["email", "password"]), async (req, res
 routes.post("/sessionslogin", verifyRequiredBody(["email", "password"]), passport.authenticate("login", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
 
     try {
-        req.session.user = req.user
+        req.session.user = req.user 
         req.session.save(err => {
             if (err) {
                 req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
@@ -131,6 +132,33 @@ routes.post("/register", async (req, res) => {
     }
 })
 
+routes.post("/passwordrecovery", async (req, res) => {
+    const email = req.body.email
+    try {
+            await um.userPasswordRecovery(email)
+            req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
+            res.redirect("/views/login")
+        } catch (err) {
+            res.redirect("/views/passwordrecovery")
+    }
+})
+
+routes.post("/passwordchange/:prid", async (req, res) => {
+    const prid = req.params.prid 
+    const newPassword = req.body.password
+    try {
+            const resp = await um.userPasswordChange(prid, newPassword)
+            if(resp.status === "ERROR") throw new Error(resp.type)
+            req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
+            res.redirect("/views/login")
+        } catch (err) {
+            req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
+            if(err.message === "No es posible concretar la solicitud debido a que excede el tiempo permitido o ya se ha realizado el cambio.") 
+            res.redirect(`/views/passwordrecovery?error=${encodeURI(`${err.message}`)}`)
+            res.redirect(`/views/passwordchange/${prid}?error=${encodeURI(`${err.message}`)}`)
+    }
+})
+
 routes.get("/current", async (req, res) => {
     try {
         if (req.session.user) {
@@ -158,6 +186,18 @@ routes.post("/logout", async (req, res) => {
             res.redirect("/views/login")
             req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
         })
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
+        res.status(500).send({ status: "ERROR", type: err })
+    }
+})
+
+routes.put("/premium/:uid", filterAuth(["premium"]), async (req, res) => {
+    const uid = req.params.uid
+    try {
+        const resp = await um.updateUser(uid) 
+        req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
+        res.status(200).send({ status: "OK", payload: resp.payload })
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
         res.status(500).send({ status: "ERROR", type: err })
