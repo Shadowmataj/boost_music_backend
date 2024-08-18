@@ -1,0 +1,382 @@
+openapi: 3.0.1
+
+info:
+  title: Products API
+  description: API to manage products
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+
+  /api/products:
+    get:
+      summary: Get products
+      description: Retrieve a list of products
+      parameters:
+        - name: limit
+          in: query
+          description: Limits the number of products to retrieve.
+          required: false
+          schema:
+            type: integer
+
+        - name: page
+          in: query
+          description: The page number to retrieve.
+          required: false
+          schema:
+            type: integer
+          
+        - name: sort
+          in: query
+          description: Sort products.
+          required: false
+          schema:
+            type: boolean
+
+        - name: property
+          in: query
+          description: The mongo field you're looking for.
+          required: false
+          schema:
+            type: string
+
+        - name: filter
+          in: query
+          description: The specific property you're looking for.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  payload:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+        "400":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ERROR
+                  error:
+                    type: string
+                    description: Specify the error.
+
+    post:
+      summary: Post a product, only specific users (admin, premium).
+      description: Post a new product.
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPost'
+        
+      responses:
+        "200":
+          description: Confirm upload of the new product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: El producto ha sido agregado exitosamente
+        "400":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ERROR:
+                    type: string
+                    example: "{detalle del error}"
+        "401":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ERROR
+                  error:
+                    type: string
+                    example: Permisos insuficientes.
+
+
+  /api/products/{pid}:
+    get:
+      summary: Get products
+      description: Retrieve a a specific product with its mongo id.
+      parameters:
+        - name: pid
+          in: path
+          description: The mongo id form the specific product to retrieve.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve one specific product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  payload:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      description:
+                        type: string
+                      thumbnails:
+                        type: string
+                      price:
+                        type: number
+                      category:
+                        type: string
+                      stock:
+                        type: string
+                      code:
+                        type: string
+                      status:
+                        type: boolean
+                      owner:
+                        type: string
+        "400":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ERROR
+                  error:
+                    type: string
+                    example: "CastError: No existe un producto con el ID: 6648eb2d002315a4b1c8eea"
+                    description: Specify the problem. 
+
+    put:
+      summary: Update a product, only specific users (admin, premium).
+      description: Update a product.
+      security:
+        - basicAuth: []
+      parameters:
+        - name: pid
+          in: path
+          description: The product Mongo id. 
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPost'
+      
+      responses:
+        "200":
+          description: Confirm the update of the new product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: El producto con ID {id} ha sido actualizado exitosamente
+        "400":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ERROR 
+                  type:
+                    type: string
+                    example: "No existe un producto con el ID: {id}"
+        "401":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ERROR
+                  error:
+                    type: string
+                    example: Permisos insuficientes. 
+
+    delete:
+      summary: Delete a specifc product, only specific users (admin, premium).
+      description: Delete a product.
+      parameters:
+        - name: pid
+          in: path
+          description: The product Mongo id. 
+          required: true
+          schema:
+            type: string
+      security:
+        - basicAuth: []
+      
+      responses:
+        "200":
+          description: Confirm the delete operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: El producto con ID {id} ha sido eliminado exitosamente
+        "400":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ERROR 
+                  type:
+                    type: string
+                    example: El producto con ID ${id} no existe
+        "401":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ERROR
+                  error:
+                    type: string
+                    example: Permisos insuficientes. 
+
+  /api/products/faker/{qty}:
+    get:
+      summary: Get fake productss
+      description: Retrieve a list of fake products.
+      parameters:
+        - name: qty
+          in: path
+          description: Specify the number of fake products to retrieve.
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Retrieve a list of fake products.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                  payload:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+        "400":
+          description: Error details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: No se pudo procesar la solicitud {descripción del error}.
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        thumbnails:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        stock:
+          type: string
+        code:
+          type: string
+        status:
+          type: boolean
+        owner:
+          type: string
+    ProductPost:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        thumbnails:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        stock:
+          type: string
+        code:
+          type: string
+        status:
+          type: boolean
+

@@ -6,7 +6,6 @@ import initAuthStrategies from "../auth/passport.strategies.js";
 import config from "../config.js";
 import { usersManagers } from "../controller/users.manager.js";
 import { createHash, createToken, filterAuth, isValidPassword, verifyRequiredBody } from "../services/utils.js";
-import usersModel from "../models/users.model.js"
 
 const routes = Router()
 const um = new usersManagers()

@@ -3,13 +3,12 @@
 import { Router } from "express";
 import moment from "moment";
 // import { CartsManagers } from "../CartsManagers.js";
-import { CartsManagers } from "../controller/carts.manager.js"
+import { CartsManagers } from "../controller/carts.manager.js";
 
+import nodemailer from "nodemailer";
+import twilio from "twilio";
 import config from "../config.js";
-import nodemailer from "nodemailer"
-import twilio from "twilio"
 import { filterAuth } from "../services/utils.js";
-import productsModel from "../models/products.models.js"
 
 const cartRouter = Router()
 const cm = new CartsManagers()
@@ -34,16 +33,15 @@ cartRouter.get("/:cid", async (req, res) => {
         //     res.status(200).send({ status: "OK", payload: resp.payload }) :
         //     res.status(400).send({ status: `${resp.type.name}: No existe un carrito con el ID: ${id}.` })
         // FileSystem
-        console.log(resp.type)
-        if (resp) {
+        if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
-            res.status(200).send({ status: "OK", payload: resp })
-        } else {
-            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
-            res.status(400).send({ status: `El carrito no existe.` })
+            res.status(200).send({ status: resp.status, payload: resp.payload })
+        } else if (resp.status === "ERROR"){
+            throw new Error("El carrito no existe.")
         }
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+        res.status(400).send({ status: err.message })
     }
 })
 
@@ -58,8 +56,8 @@ cartRouter.get('/mail/sendmail', async (req, res) => {
             <div>¡Esto es un test!</div>
             `
         })
-        res.status(200).send({ status: 'OK', data: confirmation });
         req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
+        res.status(200).send({ status: 'OK', data: confirmation });
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method}api/carts${req.url} ${err}`)
         res.status(500).send({ status: 'ERR', data: err.message });
@@ -81,28 +79,6 @@ cartRouter.get('/mail/sendsms', async (req, res) => {
     }
 });
 
-// endpoint to create a new cart
-
-// cartRouter.post("/", async (req, res) => {
-//     const body = req.body
-//     let resp = null
-//     if (Array.isArray(body)) {
-//         resp = await cm.addCart(body)
-//         resp.status === "OK" ?
-//             res.status(200).send({ status: "OK", idCart: resp._id, description: "Se ha creado exitósamente el carrito." }) :
-//             res.status(400).send({ status: "ERROR", error: resp.type.message })
-//     }
-//     // File System
-//     // if (Array.isArray(body)) {
-//     //     resp = await cm.addCart(body)
-//     //     res.status(200).send({ status: "OK", idCart: resp.id, description: "Se ha creado exitósamente el carrito" })
-//     // } else {
-//     //     res.status(400).send({ status: "No se ha podido generar el carrito." })
-//     // }
-// })
-
-// endpoint to add products or modify a specific cart
-
 cartRouter.post("/product/:pid", filterAuth(["user", "premium"]), async (req, res) => {
     const { pid } = req.params
     const quantity = req.body.quantity || 1
@@ -115,11 +91,11 @@ cartRouter.post("/product/:pid", filterAuth(["user", "premium"]), async (req, re
             res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` })
         }
         if (resp.status === "ERROR") {
-            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type}`)
-            res.status(400).send({ status: `${resp.type.name}: ${resp.type}` })
+            throw new Error(`${resp.type}`)
         }
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+        res.status(400).send({ status: err.message })
     }
 
     // File System***********************************
@@ -145,14 +121,15 @@ cartRouter.post("/purchase", filterAuth(["user", "premium"]), async (req, res) =
         }
         if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type.message}`)
-            res.status(400).send({ status: resp.status, error: resp.type.message })
+            throw new Error(`${resp.type.message}`)
         }
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+        res.status(400).send({ status: "ERROR", error: err.message })
     }
 })
 
-cartRouter.put("/:cid", async (req, res) => {
+cartRouter.put("/:cid", filterAuth(["user", "premium"]), async (req, res) => {
     const { cid } = req.params
     const body = req.body
 
@@ -164,10 +141,11 @@ cartRouter.put("/:cid", async (req, res) => {
         }
         if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type.name}`)
-            res.status(400).send({ status: `${resp.type.name}: No se pudo realizar la operación.` })
+            throw new Error(`${resp.type.name}: No se pudo realizar la operación.`)
         }
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+        res.status(400).send({ status: err.message })
     }
 })
 
@@ -182,29 +160,31 @@ cartRouter.put("/:cid/product/:pid", filterAuth(["user", "premium"]), async (req
         }
         if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url}`)
-            res.status(400).send({ status: resp.status, error: resp.type.message })
+            throw new Error(`${resp.type.message}`)
         }
-
     }catch (err){
         req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+        res.status(400).send({ status: "ERROR", error: err.message })
     }
 })
 
-cartRouter.delete("/:cid/product/:pid", async (req, res) => {
+cartRouter.delete("/:cid/product/:pid", filterAuth(["user", "premium"]), async (req, res) => {
     const { pid, cid } = req.params
     try{
         
         const resp = await cm.deleteCartProduct(cid, pid)
         if(resp.status === "OK"){
             req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
-            res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` })
+            res.status(200).send({ status: `El carrito ${cid} fue actualizado de forma exitosa.` })
         }
         if(resp.status === "ERROR"){
-            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type.message}`)
-            res.status(400).send({ status: resp.status, error: resp.type.message })
+            console.log(resp)
+            req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type}`)
+            throw new Error (`${resp.type}`)
         }
     }catch(err){
         req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+        res.status(400).send({ status: "ERROR", error: err.message })
     }
 
     // File System***********************************
@@ -216,7 +196,7 @@ cartRouter.delete("/:cid/product/:pid", async (req, res) => {
 
 })
 
-cartRouter.delete("/:cid", async (req, res) => {
+cartRouter.delete("/:cid", filterAuth(["user", "premium"]), async (req, res) => {
     const { cid } = req.params
     try{
         const resp = await cm.deleteProducts(cid)
@@ -226,10 +206,11 @@ cartRouter.delete("/:cid", async (req, res) => {
         }
         if(resp.status === "ERROR"){
             req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type.name}`)
-            res.status(400).send({ status: `${resp.type.name}: No se pudo realizar la operación.` })
+            throw new Error(`${resp.type.name}: No se pudo realizar la operación.`)
         }
     } catch (err){
-        req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+        req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url} ${err}`)
+        res.status(400).send({ status: "ERROR", error: err.message })
     }
 
     // File System***********************************

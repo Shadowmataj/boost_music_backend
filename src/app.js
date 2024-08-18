@@ -7,6 +7,8 @@ import passport from "passport"
 import fileStore from "session-file-store"
 import { Server } from "socket.io"
 import cluster from "cluster"
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
 
 import config from "./config.js"
 import cartsModel from "./models/cart.models.js"
@@ -83,6 +85,18 @@ if (cluster.isPrimary) {
         app.use('/static', express.static(`${config.DIRNAME}/public`));
         app.use(errorsHandler)
 
+        const swaggerOptions = {
+            definition: {
+                openapi: '3.1.0',
+                info: {
+                    title: 'Documentación sistema boost music',
+                    description: 'Esta documentación cubre toda la API habilitada para Boost Music',
+                },
+            },
+            apis: ['./src/docs/**/*.yaml'], // todos los archivos de configuración de rutas estarán aquí
+        };
+        const specs = swaggerJsdoc(swaggerOptions);
+        app.use('/api/docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
 
         // listening the connection from a new socket

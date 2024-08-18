@@ -7,7 +7,11 @@ import CustomError from "./customError.class.js"
 import { errorsDictionary } from "../config.js"
 
 class CartsServices {
-
+    /**
+     * 
+     * @param {array} product array with the products custumer wants to buy
+     * @returns The cart saved in the db
+     */
     async addCartService(product) {
         const date = moment().format()
         const item = {
@@ -22,6 +26,11 @@ class CartsServices {
         }
     }
 
+    /**
+     * 
+     * @param {string} id The mongo id of the cart we want to get
+     * @returns Status from the operations, if it can get the cart or not
+     */
     async getCartByIdService(id) {
         try {
             const cart = await cartModels.findById(id).populate({ path: 'products.id', model: productsModel }).lean()
@@ -31,16 +40,24 @@ class CartsServices {
         }
     }
 
+    /**
+     * Function to add one product to a specific cart.
+     * @param {string} cid The mongo id of the cart we want to update 
+     * @param {string} pid The mongo id of the product we want to add
+     * @param {number} quantity The quantity of the product we want to add
+     * @param {string} email The email from the person to verify if the product don't belong to that person
+     * @returns Returns the cart updated if the operations is finished or the error during the operation
+     */
     async updateCartService(cid, pid, quantity, email) {
         try {
             const cart = await cartModels.findById(cid)
             let cartUpdated = null
             const date = moment().format()
             const product = await productsModel.findOne({ _id: pid })
-            
+
             if (email === product.owner) throw new Error("No puedes agregar tus propios artículos al carrito.")
-            
-                const cartProducts = [...cart.products]
+
+            const cartProducts = [...cart.products]
             const productIndex = cartProducts.findIndex(item => item.id === pid)
             if (productIndex != -1) {
                 cartProducts[productIndex].quantity = cartProducts[productIndex].quantity + quantity
@@ -59,6 +76,12 @@ class CartsServices {
         }
     }
 
+    /**
+     * Function to update a specific cart with n products
+     * @param {string} cid The mongo id of the cart you want to update 
+     * @param {array} body The array of new products to add to the cart
+     * @returns The status of the operation
+     */
     async addCartProductsService(cid, body) {
         try {
             const cart = await cartModels.findById(cid)
@@ -176,10 +199,10 @@ class CartsServices {
                 await cartModels.findByIdAndUpdate(cid, { products: newProductsArray })
                 return { status: "OK", payload: newProductsArray }
             } else {
-                throw new CustomError(errorsDictionary.CART_PRODUCT_ERROR)
+                throw new Error("El producto no se encuentra en el carrito.")
             }
         } catch (err) {
-            return { status: "ERROR", type: err.type }
+            return { status: "ERROR", type: err.message }
         }
     }
 

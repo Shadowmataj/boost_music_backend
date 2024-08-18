@@ -9,7 +9,7 @@ import { generateFakeProducts } from "../faker/faker.js";
 
 
 const productsRouter = Router()
-const pm = new ProductManagers()
+const pm =  new ProductManagers()
 
 // endpoint to get an entire porducts list or a limited one
 productsRouter.get("/", async (req, res) => {
@@ -66,7 +66,7 @@ productsRouter.get("/faker/:qty", async (req, res) => {
         res.status(200).send({ status: "OK", payload: products })
     } catch (err) {
         req.logger.info(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
-        res.status(400).send({ Error: `No no se pudo procesar la solicitud. ${err}` })
+        res.status(400).send({ Error: `No se pudo procesar la solicitud. ${err}` })
     }
 })
 
@@ -80,10 +80,10 @@ productsRouter.post("/", filterAuth(["admin", "premium"]), async (req, res) => {
         const resp = await pm.addProduct(item)
 
         if (resp.status === "OK") {
-            res.status(200).send({ status: resp.payload })
             const productsList = await pm.getProducts(0)
             socketServer.emit("update_for_all", productsList)
             req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
+            res.status(200).send({ status: resp.payload })
         } else if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} ${req.url} api/products${resp.type}`)
             res.status(400).send({ ERROR: `${resp.type}` })
@@ -136,10 +136,9 @@ productsRouter.delete("/:pid", filterAuth(["admin", "premium"]), async (req, res
         if (req.session.user.role === "admin" || (req.session.user.role === "premium" && req.session.user.email === product.payload.owner)) resp = await pm.deleteProduct(id)
         else throw new Error("El producto no puede ser eliminado por el usuario ya que no le pertenece.")
         if (resp.status === "OK") {
-            req.logger.info(`${new moment().format()} ${req.method} ${req.url}`)
-            res.status(200).send({ status: `El producto con ID ${id} ha sido eliminado exitosamente` })
             const productsList = await pm.getProducts(0)
             socketServer.emit("update_for_all", productsList)
+            res.status(200).send({ status: `El producto con ID ${id} ha sido eliminado exitosamente` })
             req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
         } else if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} api/products${req.url}`)
