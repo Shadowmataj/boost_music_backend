@@ -2,7 +2,7 @@ import moment from "moment"
 import nodemailer from "nodemailer"
 
 import config, { errorsDictionary } from "../config.js"
-import { CartsManagers } from "../controller/carts.manager.js"
+import CartsManagers from "../controller/carts.manager.js"
 import recoveryModel from "../models/recovery.models.js"
 import usersModel from "../models/users.model.js"
 import CustomError from "./customError.class.js"

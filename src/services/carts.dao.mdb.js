@@ -1,12 +1,14 @@
 import moment from "moment"
+import { errorsDictionary } from "../config.js"
 import cartModels from "../models/cart.models.js"
 import productsModel from "../models/products.models.js"
 import ticketModel from "../models/ticket.models.js"
-import usersModel from "../models/users.model.js"
 import CustomError from "./customError.class.js"
-import { errorsDictionary } from "../config.js"
 
 class CartsServices {
+    constructor() {
+
+    }
     /**
      * 
      * @param {array} product array with the products custumer wants to buy
@@ -36,7 +38,7 @@ class CartsServices {
             const cart = await cartModels.findById(id).populate({ path: 'products.id', model: productsModel }).lean()
             return { status: "OK", payload: cart }
         } catch (err) {
-            return { status: "ERROR", type: err }
+            return { status: "ERROR", type: err.message }
         }
     }
 
@@ -53,7 +55,7 @@ class CartsServices {
             const cart = await cartModels.findById(cid)
             let cartUpdated = null
             const date = moment().format()
-            const product = await productsModel.findOne({ _id: pid })
+            const product = await productsModel.findById(pid)
 
             if (email === product.owner) throw new Error("No puedes agregar tus propios artículos al carrito.")
 
@@ -72,7 +74,7 @@ class CartsServices {
             }
             return { status: "OK", payload: cartUpdated }
         } catch (err) {
-            return { status: "ERROR", type: err }
+            return { status: "ERROR", type: err.message }
         }
     }
 
@@ -87,7 +89,7 @@ class CartsServices {
             const cart = await cartModels.findById(cid)
             const cartProducts = [...cart.products]
             for (let item of body) {
-                await productsModel.exists({ _id: item.id })
+                const productExist = await productsModel.exists({ _id: item.id })
                 const productIndex = cartProducts.findIndex(itm => itm.id === item.id)
                 if (productIndex !== -1) {
                     cartProducts[productIndex].quantity = cartProducts[productIndex].quantity + item.quantity
@@ -98,18 +100,18 @@ class CartsServices {
                     }
                     cartProducts.push(newItem)
                 }
-            }
+            } 
             await cartModels.findByIdAndUpdate(cid, { products: cartProducts })
             return { status: "OK", payload: cartProducts }
         } catch (err) {
-            return { status: "ERROR", type: err }
+            return { status: "ERROR", type: err.message }
         }
     }
 
     async updateCartProductService(cid, pid, quantity) {
         try {
-            const cart = await cartModels.findById(cid).exec()
-            const product = await productsModel.findOne({ _id: pid }).exec()
+            const cart = await cartModels.findById(cid).lean()
+            await productsModel.exists({ _id: pid }).lean()
             const cartProducts = [...cart.products]
             const productIndex = cartProducts.findIndex(item => item.id === pid)
             if (productIndex != -1) {
@@ -124,7 +126,7 @@ class CartsServices {
             return { status: "OK", payload: cartUpdated }
 
         } catch (err) {
-            return { status: "ERROR", type: err.type }
+            return { status: "ERROR", type: err.message }
         }
     }
 
@@ -176,7 +178,7 @@ class CartsServices {
                 }
 
                 resp.payload = `Su compra ${purchase._id} se ha finalizado.`
-            } else throw new CustomError(errorsDictionary.EMPTY_CART_ERROR)
+            } else throw new Error("El carrito está vacío")
             // Updating the user's cart with the products that couldn't be purchased. 
             await cartModels.findByIdAndUpdate(cid, { products: incompletedPurchases })
 
@@ -184,7 +186,7 @@ class CartsServices {
             resp.alerts = alerts
             return resp
         } catch (err) {
-            return { status: "ERROR", type: err.type }
+            return { status: "ERROR", type: err.message}
         }
     }
 
@@ -211,7 +213,7 @@ class CartsServices {
             await cartModels.findByIdAndUpdate(cid, { products: [] })
             return { status: "OK", payload: "Se han eliminado los productos del carrito." }
         } catch (err) {
-            return { status: "ERROR", type: err }
+            return { status: "ERROR", type: err.message }
         }
     }
 

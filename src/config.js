@@ -1,21 +1,4 @@
-import { Command } from "commander"
 import * as url from "url"
-
-
-// Parseo de opciones de línea de comandos
-// const commandLine = new Command()
-// commandLine
-//     .option("--mode <mode>")
-//     .option("--port <port>")
-//     .option("--setup <setup_number>")
-// commandLine.parse()
-// const clOptions = commandLine.opts()
-
-
-// Parseo de variables de entorno
-// Dotenv busca el archivo .env  e inyecta todas las variables en el entorno del sistema 
-// Disponibles a través de process.env
-// dotenv.config()
 
 const config = {
     SERVER: "Atlas",
@@ -25,6 +8,7 @@ const config = {
     get UPLOAD_DIR() { return `${this.DIRNAME}/public/img` },
     THIS_PATH_PRODUCTS: "./src/dao/MangersFileSystem/products.json",
     THIS_PATH_CARTS: "./src/dao/MangersFileSystem/carts.json",
+    APP_NAME: "boost",
     MONGODB_URI: process.env.MONGODB_URI,
     SECRET: process.env.SECRET,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,

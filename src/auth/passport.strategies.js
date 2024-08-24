@@ -1,11 +1,11 @@
 import passport from "passport"
 import local from "passport-local"
 
-import { usersManagers } from "../controller/users.manager.js"
-import { createHash, isValidPassword } from "../services/utils.js"
 import gitHubStrategy from "passport-github2"
-import config from "../config.js"
 import GoogleStrategy from "passport-google-oauth20"
+import config from "../config.js"
+import { usersManagers } from "../controller/users.manager.js"
+import { isValidPassword } from "../services/utils.js"
 
 const localStrategy = local.Strategy
 const um = new usersManagers()

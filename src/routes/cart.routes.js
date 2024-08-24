@@ -3,7 +3,7 @@
 import { Router } from "express";
 import moment from "moment";
 // import { CartsManagers } from "../CartsManagers.js";
-import { CartsManagers } from "../controller/carts.manager.js";
+import CartsManagers from "../controller/carts.manager.js";
 
 import nodemailer from "nodemailer";
 import twilio from "twilio";

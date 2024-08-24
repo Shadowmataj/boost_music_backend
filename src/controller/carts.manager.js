@@ -1,8 +1,9 @@
-import { CartsServices } from "../services/dao.factory.js"
+// import { CartsServices } from "../services/dao.factory.js"
+import CartsServices from "../services/carts.dao.mdb.js"
 
 const cs = new CartsServices()
 
-export class CartsManagers {
+class CartsManagers {
 
     async addCart(product) {
         try {
@@ -78,3 +79,5 @@ export class CartsManagers {
     }
 
 }
+
+export default CartsManagers
