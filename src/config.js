@@ -1,11 +1,13 @@
 import * as url from "url"
+import path from "path"
 
 const config = {
     SERVER: "Atlas",
     PORT: process.env.PORT || 8080,
-    DIRNAME: url.fileURLToPath(new URL(".", import.meta.url)),
+    DIRNAME: path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:\/)/, '$1')),
     // función getter
     get UPLOAD_DIR() { return `${this.DIRNAME}/public/img` },
+    get UPLOAD_DOCUMENTS_DIR() { return `${this.DIRNAME}/uploads` },
     THIS_PATH_PRODUCTS: "./src/dao/MangersFileSystem/products.json",
     THIS_PATH_CARTS: "./src/dao/MangersFileSystem/carts.json",
     APP_NAME: "boost",

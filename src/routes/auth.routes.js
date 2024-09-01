@@ -44,6 +44,7 @@ routes.post("/sessionslogin", verifyRequiredBody(["email", "password"]), passpor
 
     try {
         req.session.user = req.user
+        await um.updateLastLogin(req.session.user._id, "LOGIN")
         req.session.save(err => {
             if (err) {
                 req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
@@ -79,6 +80,7 @@ routes.get("/ghlogincallback", passport.authenticate("ghlogin", { failureRedirec
 
     try {
         req.session.user = req.user
+        await um.updateLastLogin(req.session.user._id, "LOGIN")
         req.session.save(err => {
             if (err) {
                 req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
@@ -101,6 +103,7 @@ routes.get("/gglogincallback", passport.authenticate("ggllogin", { failureRedire
 
     try {
         req.session.user = req.user
+        await um.updateLastLogin(req.session.user._id, "LOGIN")
         req.session.save(err => {
             if (err) {
                 req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
@@ -177,11 +180,13 @@ routes.get("/current", verifyToken, async (req, res) => {
 
 routes.post("/logout", async (req, res) => {
     try {
+        await um.updateLastLogin(req.session.user._id, "LOGOUT")
         req.session.destroy((err) => {
             if (err) {
                 req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
                 return res.status(500).send({ status: "ERROR", type: "No se ha podido completar la operación." })
             }
+
             req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
             res.redirect("/views/login")
         })
@@ -191,16 +196,5 @@ routes.post("/logout", async (req, res) => {
     }
 })
 
-routes.put("/premium/:uid", filterAuth(["premium"]), async (req, res) => {
-    const uid = req.params.uid
-    try {
-        const resp = await um.updateUser(uid)
-        req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
-        res.status(200).send({ status: "OK", payload: resp.payload })
-    } catch (err) {
-        req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
-        res.status(500).send({ status: "ERROR", type: err })
-    }
-})
 
 export default routes

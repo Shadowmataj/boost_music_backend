@@ -15,6 +15,9 @@
     <h3>Id del carrito: {{user.cart}}</h3>
 
     <div class="user-buttons">
+        <form action="/views/users/documents" method="get">
+            <button type="submit" class="btn btn-success">Subir archivos premium</button>
+        </form>
         <form action="/views/products" method="get">
             <button type="submit" class="btn btn-success">Vista de productos</button>
         </form>
@@ -22,4 +25,5 @@
             <button type="submit" class="btn btn-success">Salir</button>
         </form>
     </div>
+
 </div>

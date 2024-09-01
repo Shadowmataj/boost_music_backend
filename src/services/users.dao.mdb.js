@@ -7,6 +7,7 @@ import recoveryModel from "../models/recovery.models.js"
 import usersModel from "../models/users.model.js"
 import CustomError from "./customError.class.js"
 import { createHash, isValidPassword } from "./utils.js"
+import { use } from "bcrypt/promises.js"
 
 const cm = new CartsManagers()
 const transport = nodemailer.createTransport({
@@ -107,12 +108,50 @@ export class UsersServices {
 
         try {
             const user = await usersModel.findById(uid)
-            if(user.role === "user") user.role = "premium"
-            else if(user.role === "premium") user.role = "user"
-            await usersModel.findByIdAndUpdate(uid, {role: user.role})
-            return {status: "OK", payload: "El rol ha sido actualizado."}
+            if (user.documents.length === 3 && user.role === "user") {
+                if (user.documents[0].name.includes("IDENTIFICACION") && user.documents[1].name.includes("COMPROBANTEDEDOMICILIO") && user.documents[2].name.includes("ESTADODECUENTA")) {
+                    await usersModel.findByIdAndUpdate(uid, { role: "premium" })
+                    return {status: "OK", payload: "Se ha realizado el cambio solicitado."}
+                } else {
+                    throw new Error("Alguno de los documentos no cumple con lo solicitado.")
+                }
+            } else if (user.role === "premium") {
+                await usersModel.findByIdAndUpdate(uid, { role: "user" })
+                return {status: "OK", payload: "Se ha realizado el cambio solicitado."}
+            } else if (user.documents.length < 3 && user.documents.length > 0) throw new Error("Faltan documentos.")
+            else if (user.documents.length > 3) throw new Error("Hay más documentos de los solicitados.")
+            else if (user.documents.length === 0) throw new Error("No se han cargado los documentos necesarios.")
         } catch (err) {
             return { status: "ERROR", type: err.message }
+        }
+    }
+
+    async updateLastLoginService(uid, log) {
+        try {
+            await usersModel.findByIdAndUpdate(uid, { lastConnection: `${moment().format()}-${log}` })
+            return true
+        } catch (err) {
+            console.log(err.message)
+        }
+    }
+
+    async updateUsersDocumentsService(uid, files) {
+        try {
+            const documents = files.map(item => {
+                const newItem = {
+                    name: item.filename,
+                    reference: item.path
+                }
+                return newItem
+            })
+
+            await usersModel.findByIdAndUpdate(uid, { documents: documents })
+
+            console.log(documents)
+
+            return true
+        } catch (err) {
+            console.log(err.message)
         }
     }
 }

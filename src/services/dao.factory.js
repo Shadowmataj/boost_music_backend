@@ -2,6 +2,7 @@ import config from "../config.js";
 
 export let ProductsServices = {}
 export let CartsServices = {}
+export let UsersServices = {}
 
 switch (config.PERSISTENCE) {
 
@@ -19,8 +20,11 @@ switch (config.PERSISTENCE) {
 
         const MongoService = await import("./products.dao.mdb.js")
         const MongoServiceCarts = await import("./carts.dao.mdb.js")
+        const MongoServiceUsers = await import("./users.dao.mdb.js")
+        UsersServices
         ProductsServices = MongoService.default
         CartsServices = MongoServiceCarts.default
+        UsersServices = MongoServiceUsers.default
         break
 
     default:

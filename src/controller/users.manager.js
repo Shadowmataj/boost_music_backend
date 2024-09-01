@@ -1,4 +1,5 @@
 import { UsersServices } from "../services/users.dao.mdb.js"
+// import { UsersServices } from "../services/dao.factory.js"
 
 const us = new UsersServices()
 
@@ -47,10 +48,29 @@ export class usersManagers {
 
     async updateUser(uid) {
         try {
+            console.log(uid)
             const resp = await us.updateUserService(uid)
             return resp
         } catch (err) {
             console.log(`Function updateUser: ${err}`)
+        }
+    }
+
+    async updateLastLogin(uid, log) {
+        try {
+            await us.updateLastLoginService(uid, log)
+            return true
+        } catch (err) {
+            console.log(`Function updateLastLogin: ${err}`)
+        }
+    }
+
+    async updateUsersDocuments(uid, files) {
+        try {
+            await us.updateUsersDocumentsService(uid, files)
+            return true
+        } catch (err) {
+            console.log(`Function updateLastLogin: ${err}`)
         }
     }
 

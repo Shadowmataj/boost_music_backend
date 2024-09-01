@@ -1,4 +1,5 @@
-import { ProductsServices } from "../services/dao.factory.js"
+import ProductsServices from "../services/products.dao.fs.js"
+// import { ProductsServices } from "../services/dao.factory.js"
 
 
 const ps = new ProductsServices()

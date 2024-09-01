@@ -140,5 +140,19 @@ routes.get("/passwordchange/:prid", async (req, res) => {
     return res.render("passwordChange", resp)
 })
 
+routes.get("/users/documents", async (req, res) => {
+    
+    if(req.session.user){
+        const resp = {
+            styles: "index.css",
+            showError: req.query.error ? true : false, 
+            errorMessage: req.query.error
+        }
+        req.logger.info(`${moment().format()} ${req.method} views${req.url}`)
+        return res.render("uploader", resp)
+    } else {
+        res.redirect("/views/login")
+    }
+})
 
 export default routes

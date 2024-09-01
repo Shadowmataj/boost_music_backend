@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boost Music Premium</title>
+</head>
+
+<body>
+    <h1>Boost Music Premium</h1>
+
+    <!-- FUNDAMENTAL al activar un formulario para carga de archivos, indicar el
+    método POST y el enctype correcto -->
+    <h2>ES IMPORTANTE QUE LOS NOMBRES DE LAS IMÁGENES NO CONTENGAN TILDES O CARACTERES ESPECIALES.</h2>
+    <form action="/api/users/documents" method="POST" enctype="multipart/form-data">
+        <label for="documentsImage">El nombre del archivo deve incluir el texto "IDENTIFICACION"</label>
+        <input type="file" name="documentsImage">
+        <label for="documentsImage">El nombre del archivo deve incluir el texto "COMPROBANTEDEDOMICILIO"</label>
+        <input type="file" name="documentsImage">
+        <label for="documentsImage">El nombre del archivo deve incluir el texto "ESTADODECUENTA"</label>
+        <input type="file" name="documentsImage">
+        <br /><br />
+        <button type="submit">Subir imágenes de producto</button>
+    </form>
+
+</body>
+
+</html>
