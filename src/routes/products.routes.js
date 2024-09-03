@@ -24,7 +24,7 @@ productsRouter.get("/", async (req, res) => {
         const resp = await pm.getProducts(limit, page, sort, query, property, filter)
         if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}products/`)
-            res.status(200).send({ resp })
+            res.status(200).send(resp)
         } else if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${resp.type.message}`)
             res.status(400).send({ status: "ERROR", error: `${resp.type.message}` })

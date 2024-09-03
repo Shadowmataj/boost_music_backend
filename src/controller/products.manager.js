@@ -1,4 +1,4 @@
-import ProductsServices from "../services/products.dao.fs.js"
+import ProductsServices from "../services/products.dao.mdb.js"
 // import { ProductsServices } from "../services/dao.factory.js"
 
 
@@ -35,6 +35,7 @@ export class ProductManagers {
     async getProducts(limitProducts, pageNumber, sortProducts, queryProperty, property, filter) {
         try {
             const resp = await ps.getProductsService(limitProducts, pageNumber, sortProducts, queryProperty, property, filter)
+            console.log(resp)
             return resp
         } catch (err) {
             console.log(`Function getProducts: ${err}`)
