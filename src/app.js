@@ -29,7 +29,7 @@ import addLogger from "./services/logger.js"
 
 if (cluster.isPrimary) {
     // initializing 8 instances cluster 
-    for (let i = 0; i < cpus().length; i++) cluster.fork()
+    for (let i = 0; i < 1; i++) cluster.fork()
 
     cluster.on('error', (err) => {
         console.error('Child process encountered an error:', err);
