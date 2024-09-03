@@ -31,7 +31,7 @@ if (cluster.isPrimary) {
     // initializing 8 instances cluster 
     for (let i = 0; i < cpus().length; i++) cluster.fork()
 
-    child.on('error', (err) => {
+    cluster.on('error', (err) => {
         console.error('Child process encountered an error:', err);
     });
 
