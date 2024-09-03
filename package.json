@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "nodemon --env-file=.env.devel src/app --ignore sessions",
     "prod": "nodemon --env-file=.env.prod src/app --ignore sessions",
-    "start": "node src/app",
+    "start": "node src/app.js",
     "test": "mocha test/Carts.dao.test.js",
     "supertest": "mocha test/supertest.test.js"
   },
