@@ -31,7 +31,12 @@ if (cluster.isPrimary) {
     // initializing 8 instances cluster 
     for (let i = 0; i < cpus().length; i++) cluster.fork()
 
+    child.on('error', (err) => {
+        console.error('Child process encountered an error:', err);
+    });
+
     cluster.on("exit", (worker, code, signal) => {
+
         console.log(`Se cayó la instancia ${worker.process.pid}`)
         cluster.fork()
     })
@@ -39,7 +44,7 @@ if (cluster.isPrimary) {
     try {
         const app = express()
         const fileStorage = fileStore(session)
-        
+
         console.log("Persistencia a MONGO")
         const { default: MongoSingleton } = await import("./services/mongo.singleton.js")
         await MongoSingleton.getInstance()
