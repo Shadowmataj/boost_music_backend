@@ -20,7 +20,7 @@ const initAuthStrategies = () => {
                     const { password, ...filteredUser } = user
                     return done(null, filteredUser)
                 } else {
-                    return done(null, false)
+                    return done(null, false, {message: "Usuario o contraseña inválidos."})
                 }
             } catch (err) {
                 return done(err, false)

@@ -5,7 +5,7 @@ import passport from "passport";
 import initAuthStrategies from "../auth/passport.strategies.js";
 import config from "../config.js";
 import { usersManagers } from "../controller/users.manager.js";
-import { createHash, createToken, filterAuth, isValidPassword, verifyRequiredBody, verifyToken } from "../services/utils.js";
+import { createHash, createToken, isValidPassword, verifyRequiredBody, verifyToken } from "../services/utils.js";
 
 const routes = Router()
 const um = new usersManagers()
@@ -60,12 +60,12 @@ routes.post("/sessionslogin", verifyRequiredBody(["email", "password"]), passpor
     }
 })
 
-routes.post("/jwtlogin", verifyRequiredBody(["email", "password"]), passport.authenticate("login", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
+routes.post("/jwtlogin", verifyRequiredBody(["email", "password"]), passport.authenticate("login", { failureMessage: "x" }), async (req, res) => {
 
     try {
-        const token = createToken(req.user, "1h")
+        const token = createToken(req.user, "24h")
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
-        res.cookie("boostCookie", token, {maxAge:3600000}).status(200).send({ status: "OK", payload: "Usuario autenticado" })
+        res.status(200).send({ status: "OK", payload: req.user, token: token, cookieName: "boostCookie", maxAge: 86400 })
     }
     catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
@@ -127,11 +127,11 @@ routes.post("/register", async (req, res) => {
         const hashPassword = createHash(password)
         const resp = await um.addUser(firstName, lastName, email, age, hashPassword)
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
-        if (resp.status === "OK") res.redirect(303, "/views/login")
+        if (resp.status === "OK") res.status(200).send({ status: "OK", payload: "El usuario ha sido registrado con éxito." })
         else throw new Error("El usuario ya se encuentra registrado.")
     } catch (err) {
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
-        res.redirect(`/views/register?error=${encodeURI(err.message)}`)
+        res.status(400).send({ status: "ERROR", type: err.message })
     }
 })
 
@@ -167,7 +167,7 @@ routes.get("/current", verifyToken, async (req, res) => {
         if (req.user) {
             const filteredUser = await um.usersDTO(req.user)
             req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
-            return res.status(200).send(filteredUser)
+            return res.status(200).send({ status: "OK", payload: filteredUser })
         } else {
             throw new Error("No hay usuarios activos.")
         }

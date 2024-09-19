@@ -8,7 +8,7 @@ import CartsManagers from "../controller/carts.manager.js";
 import nodemailer from "nodemailer";
 import twilio from "twilio";
 import config from "../config.js";
-import { filterAuth } from "../services/utils.js";
+import { filterAuth, verifyToken } from "../services/utils.js";
 
 const cartRouter = Router()
 const cm = new CartsManagers()
@@ -24,7 +24,7 @@ const transport = nodemailer.createTransport({
 
 const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN)
 // endpoint to get the information of a specific cart  
-cartRouter.get("/:cid", async (req, res) => {
+cartRouter.get("/:cid", verifyToken, async (req, res) => {
     const id = req.params.cid
 
     try {
@@ -79,13 +79,12 @@ cartRouter.get('/mail/sendsms', async (req, res) => {
     }
 });
 
-cartRouter.post("/product/:pid", filterAuth(["user", "premium"]), async (req, res) => {
+cartRouter.post("/product/:pid", verifyToken,  filterAuth(["user", "admin", "premium"]), async (req, res) => {
     const { pid } = req.params
-    const quantity = req.body.quantity || 1
+    const quantity = +(req.body.quantity || 1)
 
     try {
-        if(!req.session.user) res.redirect("/views/login")
-        const resp = await cm.updateCart(req.session.user.cart, pid, quantity, req.session.user.email)
+        const resp = await cm.updateCart(req.user.cart, pid, quantity, req.user.email)
         if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
             res.status(200).send({ status: `El carrito ${resp.payload._id} fue actualizado de forma exitosa.` })
@@ -168,7 +167,7 @@ cartRouter.put("/:cid/product/:pid", filterAuth(["user", "premium"]), async (req
     }
 })
 
-cartRouter.delete("/:cid/product/:pid", filterAuth(["user", "premium"]), async (req, res) => {
+cartRouter.delete("/:cid/product/:pid", verifyToken, filterAuth(["user", "admin", "premium"]), async (req, res) => {
     const { pid, cid } = req.params
     try{
         
@@ -178,7 +177,6 @@ cartRouter.delete("/:cid/product/:pid", filterAuth(["user", "premium"]), async (
             res.status(200).send({ status: `El carrito ${cid} fue actualizado de forma exitosa.` })
         }
         if(resp.status === "ERROR"){
-            console.log(resp)
             req.logger.error(`${new moment().format()} ${req.method} api/carts${req.url} ${resp.type}`)
             throw new Error (`${resp.type}`)
         }

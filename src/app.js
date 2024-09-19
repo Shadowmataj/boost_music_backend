@@ -24,10 +24,11 @@ import usersRoutes from "./routes/users.routes.js"
 import viewRoutes from "./routes/view.routes.js"
 import errorsHandler from "./services/errors.handler.js"
 import addLogger from "./services/logger.js"
+import { cpus } from "os"
 
 if (cluster.isPrimary) {
     // initializing 8 instances cluster 
-    for (let i = 0; i < 1; i++) cluster.fork()
+    for (let i = 0; i < cpus().length; i++) cluster.fork()
 
     cluster.on('error', (err) => {
         console.error('Child process encountered an error:', err);

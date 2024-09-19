@@ -35,7 +35,6 @@ export class ProductManagers {
     async getProducts(limitProducts, pageNumber, sortProducts, queryProperty, property, filter) {
         try {
             const resp = await ps.getProductsService(limitProducts, pageNumber, sortProducts, queryProperty, property, filter)
-            console.log(resp)
             return resp
         } catch (err) {
             console.log(`Function getProducts: ${err}`)

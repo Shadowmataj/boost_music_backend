@@ -11,7 +11,7 @@ const commentsRouter = Router()
 commentsRouter.get("/", async (req, res) => {
     try {
         const comments = await commentsModels.find()
-        res.status(200).send({ payload: comments })
+        res.status(200).send({ status: "OK", payload: comments })
         req.logger.info(`${new moment().format()} ${req.method} api/comments${req.url}`)
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/comments${req.url} ${err}`)
