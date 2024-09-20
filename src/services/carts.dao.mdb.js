@@ -131,13 +131,14 @@ class CartsServices {
     }
 
     // The service used by the Cart Controller to complete a purchase
-    async purchasedCartService(cid, email) {
+    async purchasedCartService(cid, email, adress) {
         try {
             // identifying the user's cart.
             const cart = await cartModels.findById(cid)
             const newCart = [] //To make the final ticket
             const incompletedPurchases = [] //To update the user's Cart with the products that were out of stock.
             const alerts = [] //To comunicate with the frontend, and letit know what products could not be purchased.
+            const purchaseId = ""
             let resp = { status: "OK" }
 
 
@@ -165,12 +166,15 @@ class CartsServices {
                 date: moment().format(),
                 amount: amount,
                 alerts: alerts,
-                purchaser: email
+                purchaser: email,
+                adress: adress
             }
 
             //Checking the cart is not empty, creating the ticket and updating the stock on db with mongo.
             if (newCart.length > 0) {
                 const purchase = await ticketModel.create(ticket)
+                
+                resp.purchaseInfo = purchase
                 for (let item of newCart) {
                     const product = await productsModel.findById(item.id, "-_id stock").lean()
                     const updatedStock = product.stock - item.quantity
@@ -180,13 +184,13 @@ class CartsServices {
                 resp.payload = `Su compra ${purchase._id} se ha finalizado.`
             } else throw new Error("El carrito está vacío")
             // Updating the user's cart with the products that couldn't be purchased. 
-            await cartModels.findByIdAndUpdate(cid, { products: incompletedPurchases })
+            if (incompletedPurchases.length > 0) await cartModels.findByIdAndUpdate(cid, { products: incompletedPurchases })
 
             // sending the response to the front.
             resp.alerts = alerts
             return resp
         } catch (err) {
-            return { status: "ERROR", type: err.message}
+            return { status: "ERROR", type: err}
         }
     }
 

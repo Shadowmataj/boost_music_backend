@@ -51,9 +51,9 @@ class CartsManagers {
     }
     
     //The controller function dedicated to complete a purchase 
-    async purchasedCart(cid, email) {
+    async purchasedCart(cid, email, adress) {
         try {
-            const resp = await cs.purchasedCartService(cid, email)
+            const resp = await cs.purchasedCartService(cid, email, adress)
             return resp
         } catch (err) {
             console.log(`Function purchasedCart: ${err}`)

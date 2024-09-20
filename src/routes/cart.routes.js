@@ -107,13 +107,13 @@ cartRouter.post("/product/:pid", verifyToken,  filterAuth(["user", "admin", "pre
 })
 
 // endpoint to finish a purchase, filtered by the rol. 
-cartRouter.post("/purchase", filterAuth(["user", "premium"]), async (req, res) => {
+cartRouter.post("/purchase", verifyToken, filterAuth(["user", "admin", "premium"]), async (req, res) => {
     
-    const email = req.session.user.email
+    const adress = req.body.adress
+    console.log(adress)
     // Using the cart controller to make de transaction.
     try {
-        if(!req.session.user) res.redirect("/views/login")
-        const resp = await cm.purchasedCart(req.session.user.cart, email)
+        const resp = await cm.purchasedCart(req.user.cart, req.user.email, adress)
         if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} api/carts${req.url}`)
             res.status(200).send(resp)
@@ -194,7 +194,7 @@ cartRouter.delete("/:cid/product/:pid", verifyToken, filterAuth(["user", "admin"
 
 })
 
-cartRouter.delete("/:cid", filterAuth(["user", "premium"]), async (req, res) => {
+cartRouter.delete("/:cid", verifyToken, filterAuth(["user", "admin", "premium"]), async (req, res) => {
     const { cid } = req.params
     try{
         const resp = await cm.deleteProducts(cid)
