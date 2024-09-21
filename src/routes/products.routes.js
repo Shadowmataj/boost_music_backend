@@ -4,7 +4,7 @@ import { Router } from "express";
 import moment from "moment";
 // import { ProductManagers } from "../dao/MangersFileSystem/ProductManagers.js"
 import { ProductManagers } from "../controller/products.manager.js"
-import { filterAuth } from "../services/utils.js";
+import { filterAuth, verifyToken } from "../services/utils.js";
 import { generateFakeProducts } from "../faker/faker.js";
 
 
@@ -16,21 +16,23 @@ productsRouter.get("/", async (req, res) => {
     const limit = +(req.query.limit || 9)
     const page = +(req.query.page || 1)
     const sort = +(req.query.sort || 0)
-    const property = req.query.property
-    const filter = req.query.filter
+    const property = req.query.property|| ""
+    const filter = req.query.filter || ""
     const query = {}
     if (property && filter) query[property] = filter
+
+    console.log(filter)
     try {
         const resp = await pm.getProducts(limit, page, sort, query, property, filter)
         if (resp.status === "OK") {
-            req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}products/`)
+            req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
             res.status(200).send(resp)
         } else if (resp.status === "ERROR") {
             req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${resp.type.message}`)
             res.status(400).send({ status: "ERROR", error: `${resp.type.message}` })
         }
     } catch (err) {
-        req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
+        req.logger.error(`${new moment().format()} ${req.method} api/products${req. url} ${err}`)
     }
     // res.status(200).send({ status: "OK", payload: productsList })
 })
@@ -71,12 +73,12 @@ productsRouter.get("/faker/:qty", async (req, res) => {
 })
 
 //endpoint to add new products. 
-productsRouter.post("/", filterAuth(["admin", "premium"]), async (req, res) => {
+productsRouter.post("/", verifyToken, filterAuth(["admin", "premium"]), async (req, res) => {
     const socketServer = req.app.get("socketServer")
-    const { title, description, price, thumbnails, code, stock, status, category } = req.body
+    const { title, description, price, thumbnails, code, stock, status, category, owner } = req.body
     try {
-        const item = await pm.productDTO(title, description, thumbnails, price, category, stock, code, status)
-        if (req.session.user.role === "premium") item.owner = req.session.user.email
+        const item = await pm.productDTO(title, description, thumbnails, price, category, stock, code, status, owner)
+        if (req.user.role === "premium") item.owner = req.user.email
         const resp = await pm.addProduct(item)
 
         if (resp.status === "OK") {
@@ -101,13 +103,13 @@ productsRouter.post("/", filterAuth(["admin", "premium"]), async (req, res) => {
 })
 
 // endpoint to update a specific product
-productsRouter.put("/:pid", filterAuth(["admin", "premium"]), async (req, res) => {
+productsRouter.put("/:pid", verifyToken, filterAuth(["admin", "premium"]), async (req, res) => {
     const id = req.params.pid
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
     let resp = undefined
     try {
         const product = await pm.getProductbyId(id)
-        if (req.session.user.role === "admin" || (req.session.user.role === "premium" && req.session.user.email === product.payload.owner)) resp = await pm.updateProduct(id, title, description, price, thumbnails, code, stock, status, category)
+        if (req.user.role === "admin" || (req.user.role === "premium" && req.user.email === product.payload.owner)) resp = await pm.updateProduct(id, title, description, price, thumbnails, code, stock, status, category)
         else throw new Error("El producto no puede ser actualizado por el usuario ya que no le pertenece.")
         if (resp.status === "OK") {
             req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
@@ -127,13 +129,13 @@ productsRouter.put("/:pid", filterAuth(["admin", "premium"]), async (req, res) =
 })
 
 // Endpoint to delete a specifc product using the id
-productsRouter.delete("/:pid", filterAuth(["admin", "premium"]), async (req, res) => {
+productsRouter.delete("/:pid", verifyToken, filterAuth(["admin", "premium"]), async (req, res) => {
     const socketServer = req.app.get("socketServer")
     const id = req.params.pid
     let resp = undefined
     try {
         const product = await pm.getProductbyId(id)
-        if (req.session.user.role === "admin" || (req.session.user.role === "premium" && req.session.user.email === product.payload.owner)) resp = await pm.deleteProduct(id)
+        if (req.user.role === "admin" || (req.user.role === "premium" && req.user.email === product.payload.owner)) resp = await pm.deleteProduct(id)
         else throw new Error("El producto no puede ser eliminado por el usuario ya que no le pertenece.")
         if (resp.status === "OK") {
             const productsList = await pm.getProducts(0)

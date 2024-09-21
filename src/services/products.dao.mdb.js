@@ -62,7 +62,7 @@ class ProductServices {
     }
 
     //funtion to get a specific product by id
-    async getProductbyIdService(pid) {
+    async getProductByIdService(pid) {
 
         try {
             const product = await productsModel.findById(pid)
@@ -84,7 +84,7 @@ class ProductServices {
 
     }
 
-    async updateProductService(id, title, description, price, thumbnails, code, stock, status, category) {
+    async updateProductService(id, title, description, price, thumbnails, code, stock, status, category, owner) {
 
         try {
             const product = {}
@@ -97,6 +97,7 @@ class ProductServices {
             if (!(product.stock === stock || stock === "N/A")) product["stock"] = stock
             if (!(product.status === status || status === "N/A")) product["status"] = status
             if (!(product.category === category || category === "N/A")) product["category"] = category
+            if (!(product.owner === owner || owner === "N/A")) product["owner"] = owner
             await productsModel.findByIdAndUpdate(id, product)
             return { status: "OK", payload: "Actualizado" }
         } catch (err) {

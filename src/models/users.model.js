@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import mongoosePaginate from "mongoose-paginate-v2"
 
 mongoose.pluralize(null);
 
@@ -17,7 +18,7 @@ const schema = new mongoose.Schema({
     lastConnection: { type: String, required: false}
 
 })
-
+schema.plugin(mongoosePaginate)
 
 const model = mongoose.model(collection, schema);
 

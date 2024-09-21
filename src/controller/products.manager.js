@@ -43,7 +43,7 @@ export class ProductManagers {
     //funtion to get a specific product by id
     async getProductbyId(pid) {
         try {
-            const resp = await ps.getProductbyIdService(pid)
+            const resp = await ps.getProductByIdService(pid)
             return resp
         } catch (err) {
             console.log(`Function getProductbyId: ${err}`)
@@ -61,10 +61,10 @@ export class ProductManagers {
 
     }
 
-    async updateProduct(id, title, description, price, thumbnails, code, stock, status, category) {
+    async updateProduct(id, title, description, price, thumbnails, code, stock, status, category, owner) {
 
         try {
-            const resp = await ps.updateProductService(id, title, description, price, thumbnails, code, stock, status, category)
+            const resp = await ps.updateProductService(id, title, description, price, thumbnails, code, stock, status, category, owner)
             return resp
         } catch (err) {
             console.log(`Function updateProduct: ${err}`)

@@ -110,7 +110,6 @@ cartRouter.post("/product/:pid", verifyToken,  filterAuth(["user", "admin", "pre
 cartRouter.post("/purchase", verifyToken, filterAuth(["user", "admin", "premium"]), async (req, res) => {
     
     const adress = req.body.adress
-    console.log(adress)
     // Using the cart controller to make de transaction.
     try {
         const resp = await cm.purchasedCart(req.user.cart, req.user.email, adress)

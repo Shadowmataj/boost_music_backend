@@ -7,7 +7,6 @@ import recoveryModel from "../models/recovery.models.js"
 import usersModel from "../models/users.model.js"
 import CustomError from "./customError.class.js"
 import { createHash, isValidPassword } from "./utils.js"
-import { use } from "bcrypt/promises.js"
 
 const cm = new CartsManagers()
 const transport = nodemailer.createTransport({
@@ -21,6 +20,49 @@ const transport = nodemailer.createTransport({
 
 
 export class UsersServices {
+
+    async getUsersByIdService(pid) {
+
+        try {
+            const user = await usersModel.findById(pid)
+            return { status: "OK", payload: user }
+
+        } catch (err) {
+            return { status: "ERROR", type: err }
+        }
+    }
+
+    async getUsersService(limitUsers, pageNumber, sortUsers) {
+        try {
+            let link = `http://localhost:${config.PORT}/api/users?limit=${limitUsers}`
+            
+            const options = { page: pageNumber, limit: limitUsers }
+
+            if (sortUsers === 1 || sortUsers === -1) {
+                options["sort"] = { price: sortUsers }
+                link = `${link}&sort=${sortUsers}`
+            }
+
+            const users = await usersModel.paginate(
+                {_id: {$ne: undefined}}, options)
+
+            if (users.docs.length === 0) throw new CustomError(errorsDictionary.INVALID_PARAMETER)
+
+            const result = { status: "OK", payload: users.docs, totalPages: users.totalPages, prevPage: users.prevPage, nextPage: users.nextPage, page: users.page, hasPrevPage: users.hasPrevPage, hasNextPage: users.hasNextPage }
+
+            if (users.hasPrevPage === false) result["prevLink"] = null
+            else {
+                result["prevLink"] = `${link}&page=${pageNumber - 1}`
+            }
+            if (users.hasNextPage === false) result["nextLink"] = null
+            else {
+                result["nextLink"] = `${link}&page=${pageNumber + 1}`
+            }
+            return result
+        } catch (err) {
+            return { status: "ERROR", type: err.message }
+        }
+    }
 
     async addUserService(firstName, lastName, email, age, password) {
         try {
@@ -152,6 +194,28 @@ export class UsersServices {
             return true
         } catch (err) {
             console.log(err.message)
+        }
+    }
+
+    async updateUserByAdminService(id, firstName, lastName, email, role) {
+
+        try {
+            const user = await usersModel.findByIdAndUpdate(id, {firstName: firstName, lastName: lastName, email: email, role: role})
+            return { status: "OK", payload: "Actualizado" }
+        } catch (err) {
+            console.log(err.message)
+            return { status: "ERROR", type: err }
+        }
+    }
+
+    async deleteUserbyIdService(uid) {
+
+        try {
+            await usersModel.findByIdAndDelete(uid)
+            return { status: "OK", payload: "El usuario ha sido eliminado." }
+        } catch (err) {
+            console.log(err.message)
+            return { status: "ERROR", type: err }
         }
     }
 }

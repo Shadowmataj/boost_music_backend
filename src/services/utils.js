@@ -16,7 +16,7 @@ export const verifyToken = (req, res, next) => {
     const cookieToken = req.headers.cookie ? req.headers.cookie.split("=")[1].split("; ")[0] : undefined;
     const queryToken = req.query.access_token ? req.query.access_token : undefined;
     const receivedToken = headerToken || cookieToken || queryToken;
-
+    
     if (!receivedToken) return res.status(401).send({ Error: "ERROR", type: 'Se requiere token' });
 
     jwt.verify(receivedToken, config.SECRET, (err, payload) => {

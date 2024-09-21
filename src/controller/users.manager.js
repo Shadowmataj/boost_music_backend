@@ -10,6 +10,24 @@ export class usersManagers {
             return filteredUser
     }
 
+    async getUserbyId(cid) {
+        try {
+            const resp = await us.getUsersByIdService(cid)
+            return resp
+        } catch (err) {
+            console.log(`Function getUserbyId: ${err}`)
+        }
+    }
+
+    async getUsers(limit, page, sort) {
+        try {
+            const resp = await us.getUsersService(limit, page, sort)
+            return resp
+        } catch (err) {
+            console.log(`Function getUsers: ${err}`)
+        }
+    }
+
     async addUser(firstName, lastName, email, age, password) {
         try {
             const resp = await us.addUserService(firstName, lastName, email, age, password)
@@ -56,6 +74,16 @@ export class usersManagers {
         }
     }
 
+    async updateUserByAdmin(uid, firstName, lastName, email, role) {
+
+        try {
+            const resp = await us.updateUserByAdminService(uid, firstName, lastName, email, role)
+            return resp
+        } catch (err) {
+            console.log(`Function updateUserByAdmin: ${err}`)
+        }
+    }
+
     async updateLastLogin(uid, log) {
         try {
             await us.updateLastLoginService(uid, log)
@@ -71,6 +99,15 @@ export class usersManagers {
             return true
         } catch (err) {
             console.log(`Function updateLastLogin: ${err}`)
+        }
+    }
+
+    async deleteUserbyId(uid) {
+        try {
+            const resp = await us.deleteUserbyIdService(uid)
+            return resp
+        } catch (err) {
+            console.log(`Function getUserbyId: ${err}`)
         }
     }
 
