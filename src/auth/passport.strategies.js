@@ -38,7 +38,7 @@ const initAuthStrategies = () => {
                 if (gitEmail) {
                     
                     const userMongo = await um.findUser({ email: gitEmail })
-                    const { password, ...filteredUser } = userMongo
+                    const { password, documents, ...filteredUser } = userMongo
                     if (!filteredUser) {
                         const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], gitEmail, 0, "none")
                         return done(null, process)
@@ -64,7 +64,7 @@ const initAuthStrategies = () => {
 
                 if (googleEmail) {
                     const userMongo = await um.findUser({ email: googleEmail })
-                    const { password, ...filteredUser } = userMongo
+                    const { password, documents, ...filteredUser } = userMongo
                     if (!filteredUser) {
                         const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], googleEmail, 0, "none")
                         return done(null, process)

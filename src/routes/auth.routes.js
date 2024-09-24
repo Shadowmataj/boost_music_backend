@@ -90,7 +90,7 @@ routes.get("/ghlogincallback", passport.authenticate("ghlogin", { failureMessage
             <body>
             </body>
             <script>
-            window.opener.postMessage(${userInfo}, ${config.PAGE_LINK})
+            window.opener.postMessage(${userInfo}, "${config.PAGE_LINK}")
             </script>
             </html>`
         )
@@ -117,7 +117,7 @@ routes.get("/gglogincallback", passport.authenticate("ggllogin", { failureMessag
             <body>
             </body>
             <script>
-            window.opener.postMessage(${userInfo}, ${config.PAGE_LINK})
+            window.opener.postMessage(${userInfo}, "${config.PAGE_LINK}")
             </script>
             </html>`
         )
