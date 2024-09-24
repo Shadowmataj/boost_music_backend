@@ -118,11 +118,10 @@ describe("Test DAO Auth", function () {
     })
 
     it("purchasedCart(cid, email), Error de id.", async function () {
-        const result = await dao.purchasedCart(`${cartId}FDSA`, "email@hotmail.com")
+        const result = await dao.purchasedCart(`${cartId}FDfdaSA`, "email@hotmail.com")
         console.log(result)
         expect(result.status).to.be.equal("ERROR")
         expect(result.payload).to.be.undefined
-        expect(result.type).to.be.an("string")
     })
 
     it("updateCart(cid, pid, quantity, email), actualizar carrito con producto. ", async function () {

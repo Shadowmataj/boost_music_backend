@@ -135,7 +135,6 @@ routes.post("/register", async (req, res) => {
         const { firstName, lastName, email, age, password } = req.body
         const hashPassword = createHash(password)
         const resp = await um.addUser(firstName, lastName, email, age, hashPassword)
-        console.log(resp)
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
         if (resp.status === "OK") res.status(200).send({ status: "OK", payload: "El usuario ha sido registrado con éxito." })
         else throw new Error("El usuario ya se encuentra registrado.")
@@ -175,6 +174,7 @@ routes.post("/passwordchange/:prid", async (req, res) => {
 routes.get("/current", verifyToken, async (req, res) => {
     try {
         if (req.user) {
+            console.log(req.user)
             const filteredUser = await um.usersDTO(req.user)
             req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
             return res.status(200).send({ status: "OK", payload: filteredUser })
