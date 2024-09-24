@@ -1,6 +1,17 @@
+import nodemailer from "nodemailer"
+
 import productsModel from "../models/products.models.js"
 import config, { errorsDictionary } from "../config.js"
 import CustomError from "./customError.class.js"
+
+const transport = nodemailer.createTransport({
+    service: "gmail",
+    port: 587,
+    auth: {
+        user: config.GMAIL_MAIL,
+        pass: config.GMAIL_APP_PASS
+    }
+})
 
 // create a class ProductManager to manage all the products we need.
 class ProductServices {
@@ -77,6 +88,21 @@ class ProductServices {
 
         try {
             const product = await productsModel.findByIdAndDelete(id)
+            if (product.owner !== "admin") {
+                let confirmation = await transport.sendMail({
+                    from: config.GMAIL_MAIL,
+                    to: product.owner,
+                    subject: "Producto eliminado.",
+                    html: `
+                    <h1>Te enviamos este correo para informarte que el siguiente producto ha sido eliminado</h1>
+                    <ul>
+                        <li>Nombre del producto: ${product.title}</li>
+                        <li>ID: ${product._id}</li>
+                    </ul>
+                    
+                    `
+                })
+            }
             return { status: "OK", payload: product }
         } catch (err) {
             return { status: "ERROR", type: err }

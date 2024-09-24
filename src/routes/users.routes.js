@@ -101,22 +101,38 @@ routes.put("/premium/:uid", filterAuth(["premium"]), async (req, res) => {
     }
 })
 
-routes.delete("/:uid", verifyToken, filterAuth(["admin"]), async (req, res) => {
-    const id = req.params.uid
+routes.delete("/twodaysconnection", verifyToken, filterAuth(["admin"]), async (req, res) => {
     try {
-        const resp = await um.deleteUserbyId(id)
+        const resp = await um.deleteUserbyTime()
         if (resp.status === "OK") {
-            res.status(200).send({ status: "OK", payload: `El usuario con ID ${id} ha sido eliminado exitosamente` })
-            req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
+            res.status(200).send({ status: "OK", payload: `Los usuarios con más de 3 días sin conexión han sido eliminados.` })
+            req.logger.info(`${new moment().format()} ${req.method} api/users${req.url}`)
         } else if (resp.status === "ERROR") {
-            req.logger.error(`${new moment().format()} ${req.method} api/products${req.url}`)
-            throw new Error(`El usuario con ID ${id} no existe.`)
+            throw new Error(`No se ha podido procesar la solicitud.`)
         }
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
         res.status(400).send({ status: "ERROR", type: `${err.message}` })
     }
 })
+
+routes.delete("/:uid", verifyToken, filterAuth(["admin"]), async (req, res) => {
+    const id = req.params.uid
+    try {
+        const resp = await um.deleteUserbyId(id)
+        if (resp.status === "OK") {
+            res.status(200).send({ status: "OK", payload: `El usuario con ID ${id} ha sido eliminado exitosamente` })
+            req.logger.info(`${new moment().format()} ${req.method} api/users${req.url}`)
+        } else if (resp.status === "ERROR") {
+            req.logger.error(`${new moment().format()} ${req.method} api/users${req.url}`)
+            throw new Error(`El usuario con ID ${id} no existe.`)
+        }
+    } catch (err) {
+        req.logger.error(`${new moment().format()} ${req.method} api/users${req.url} ${err}`)
+        res.status(400).send({ status: "ERROR", type: `${err.message}` })
+    }
+})
+
 
 
 export default routes

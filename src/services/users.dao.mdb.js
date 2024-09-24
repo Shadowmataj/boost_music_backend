@@ -7,6 +7,7 @@ import recoveryModel from "../models/recovery.models.js"
 import usersModel from "../models/users.model.js"
 import CustomError from "./customError.class.js"
 import { createHash, isValidPassword } from "./utils.js"
+import { format } from "winston"
 
 const cm = new CartsManagers()
 const transport = nodemailer.createTransport({
@@ -35,7 +36,7 @@ export class UsersServices {
     async getUsersService(limitUsers, pageNumber, sortUsers) {
         try {
             let link = `http://localhost:${config.PORT}/api/users?limit=${limitUsers}`
-            
+
             const options = { page: pageNumber, limit: limitUsers }
 
             if (sortUsers === 1 || sortUsers === -1) {
@@ -44,11 +45,22 @@ export class UsersServices {
             }
 
             const users = await usersModel.paginate(
-                {_id: {$ne: undefined}}, options)
+                { _id: { $ne: undefined } }, options)
+
 
             if (users.docs.length === 0) throw new CustomError(errorsDictionary.INVALID_PARAMETER)
 
-            const result = { status: "OK", payload: users.docs, totalPages: users.totalPages, prevPage: users.prevPage, nextPage: users.nextPage, page: users.page, hasPrevPage: users.hasPrevPage, hasNextPage: users.hasNextPage }
+            const filteredUsers = users.docs.map(user => {
+                return ({
+                    _id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    role: user.role
+                })
+            })
+
+            const result = { status: "OK", payload: filteredUsers, totalPages: users.totalPages, prevPage: users.prevPage, nextPage: users.nextPage, page: users.page, hasPrevPage: users.hasPrevPage, hasNextPage: users.hasNextPage }
 
             if (users.hasPrevPage === false) result["prevLink"] = null
             else {
@@ -153,13 +165,13 @@ export class UsersServices {
             if (user.documents.length === 3 && user.role === "user") {
                 if (user.documents[0].name.includes("IDENTIFICACION") && user.documents[1].name.includes("COMPROBANTEDEDOMICILIO") && user.documents[2].name.includes("ESTADODECUENTA")) {
                     await usersModel.findByIdAndUpdate(uid, { role: "premium" })
-                    return {status: "OK", payload: "Se ha realizado el cambio solicitado."}
+                    return { status: "OK", payload: "Se ha realizado el cambio solicitado." }
                 } else {
                     throw new Error("Alguno de los documentos no cumple con lo solicitado.")
                 }
             } else if (user.role === "premium") {
                 await usersModel.findByIdAndUpdate(uid, { role: "user" })
-                return {status: "OK", payload: "Se ha realizado el cambio solicitado."}
+                return { status: "OK", payload: "Se ha realizado el cambio solicitado." }
             } else if (user.documents.length < 3 && user.documents.length > 0) throw new Error("Faltan documentos.")
             else if (user.documents.length > 3) throw new Error("Hay más documentos de los solicitados.")
             else if (user.documents.length === 0) throw new Error("No se han cargado los documentos necesarios.")
@@ -200,10 +212,32 @@ export class UsersServices {
     async updateUserByAdminService(id, firstName, lastName, email, role) {
 
         try {
-            const user = await usersModel.findByIdAndUpdate(id, {firstName: firstName, lastName: lastName, email: email, role: role})
+            const user = await usersModel.findByIdAndUpdate(id, { firstName: firstName, lastName: lastName, email: email, role: role })
             return { status: "OK", payload: "Actualizado" }
         } catch (err) {
             console.log(err.message)
+            return { status: "ERROR", type: err }
+        }
+    }
+
+    async deleteUserbyTimeService() {
+
+        try {
+            const users = await usersModel.find({_id: {$ne: null}})
+        
+            users.forEach( async(user) => {
+                if(user.lastConnection){
+                    const date = moment(user.lastConnection.split("-LOG")[0])
+                    const today = moment(moment().format())
+                    const difference = today.diff(date, "days", true)
+                    if(difference > 3){
+                        console.log(user._id)
+                        await usersModel.findByIdAndDelete(user._id)
+                    }
+                }
+            })
+            return { status: "OK", payload: "Se ha completado la operación." }
+        } catch (err) {
             return { status: "ERROR", type: err }
         }
     }

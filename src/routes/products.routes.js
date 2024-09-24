@@ -21,7 +21,6 @@ productsRouter.get("/", async (req, res) => {
     const query = {}
     if (property && filter) query[property] = filter
 
-    console.log(filter)
     try {
         const resp = await pm.getProducts(limit, page, sort, query, property, filter)
         if (resp.status === "OK") {
@@ -75,9 +74,10 @@ productsRouter.get("/faker/:qty", async (req, res) => {
 //endpoint to add new products. 
 productsRouter.post("/", verifyToken, filterAuth(["admin", "premium"]), async (req, res) => {
     const socketServer = req.app.get("socketServer")
-    const { title, description, price, thumbnails, code, stock, status, category, owner } = req.body
+    console.log(req.body)
+    const { title, description, price, thumbnails, code, stock, status, category } = req.body
     try {
-        const item = await pm.productDTO(title, description, thumbnails, price, category, stock, code, status, owner)
+        const item = await pm.productDTO(title, description, thumbnails, price, category, stock, code, status)
         if (req.user.role === "premium") item.owner = req.user.email
         const resp = await pm.addProduct(item)
 

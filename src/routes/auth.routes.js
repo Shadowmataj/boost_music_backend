@@ -63,6 +63,7 @@ routes.post("/sessionslogin", verifyRequiredBody(["email", "password"]), passpor
 routes.post("/jwtlogin", verifyRequiredBody(["email", "password"]), passport.authenticate("login", { failureMessage: "x" }), async (req, res) => {
 
     try {
+        await um.updateLastLogin(req.user._id, "LOGIN")
         const token = createToken(req.user, "24h")
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
         res.status(200).send({ status: "OK", payload: req.user, token: token, cookieName: "boostCookie", maxAge: 86400 })
@@ -76,13 +77,23 @@ routes.post("/jwtlogin", verifyRequiredBody(["email", "password"]), passport.aut
 routes.get("/ghlogin", passport.authenticate("ghlogin", { scope: ["user:email"] }), async (req, res) => {
 })
 
-routes.get("/ghlogincallback", passport.authenticate("ghlogin", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
+routes.get("/ghlogincallback", passport.authenticate("ghlogin", { failureMessage: "x" }), async (req, res) => {
 
     try {
         const token = createToken(req.user, "24h")
         await um.updateLastLogin(req.user._id, "LOGIN")
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
-        res.status(200).send({ status: "OK", payload: req.user, token: token, cookieName: "boostCookie", maxAge: 86400 })
+        const userInfo = JSON.stringify({ status: "OK", payload: req.user, token: token, cookieName: "boostCookie", maxAge: 86400 })
+        res.status(200).send(
+            `<!DOCTYPE html>
+            <html lang="en">
+            <body>
+            </body>
+            <script>
+            window.opener.postMessage(${userInfo}, "http://localhost:5173")
+            </script>
+            </html>`
+        )
     }
     catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
@@ -93,14 +104,23 @@ routes.get("/ghlogincallback", passport.authenticate("ghlogin", { failureRedirec
 routes.get("/ggllogin", passport.authenticate("ggllogin", { scope: ["profile", "email"] }), async (req, res) => {
 })
 
-routes.get("/gglogincallback", passport.authenticate("ggllogin", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
+routes.get("/gglogincallback", passport.authenticate("ggllogin", { failureMessage: "x" }), async (req, res) => {
 
     try {
-        
-        await um.updateLastLogin(req.session.user._id, "LOGIN")
+        await um.updateLastLogin(req.user._id, "LOGIN")
         const token = createToken(req.user, "24h")
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
-        res.status(200).send({ status: "OK", payload: req.user, token: token, cookieName: "boostCookie", maxAge: 86400 })
+        const userInfo = JSON.stringify({ status: "OK", payload: req.user, token: token, cookieName: "boostCookie", maxAge: 86400 })
+        res.status(200).send(
+            `<!DOCTYPE html>
+            <html lang="en">
+            <body>
+            </body>
+            <script>
+            window.opener.postMessage(${userInfo}, "http://localhost:5173")
+            </script>
+            </html>`
+        )
     }
     catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
@@ -115,6 +135,7 @@ routes.post("/register", async (req, res) => {
         const { firstName, lastName, email, age, password } = req.body
         const hashPassword = createHash(password)
         const resp = await um.addUser(firstName, lastName, email, age, hashPassword)
+        console.log(resp)
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
         if (resp.status === "OK") res.status(200).send({ status: "OK", payload: "El usuario ha sido registrado con éxito." })
         else throw new Error("El usuario ya se encuentra registrado.")

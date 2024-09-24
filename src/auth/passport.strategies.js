@@ -38,13 +38,12 @@ const initAuthStrategies = () => {
                 if (gitEmail) {
                     
                     const userMongo = await um.findUser({ email: gitEmail })
-                
-                    if (!userMongo) {
+                    const { password, ...filteredUser } = userMongo
+                    if (!filteredUser) {
                         const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], gitEmail, 0, "none")
-
                         return done(null, process)
                     } else {
-                        return done(null, userMongo)
+                        return done(null, filteredUser)
                     }
                 } else {
                     return done(new Error(`Faltan datos del sistema.`), null)
@@ -65,13 +64,12 @@ const initAuthStrategies = () => {
 
                 if (googleEmail) {
                     const userMongo = await um.findUser({ email: googleEmail })
-                
-                    if (!userMongo) {
+                    const { password, ...filteredUser } = userMongo
+                    if (!filteredUser) {
                         const process = await um.addUser(profile._json.name.split(' ')[0], profile._json.name.split(' ')[1], googleEmail, 0, "none")
-
                         return done(null, process)
                     } else {
-                        return done(null, userMongo)
+                        return done(null, filteredUser)
                     }
                 } else {
                     return done(new Error(`Faltan datos del sistema.`), null)

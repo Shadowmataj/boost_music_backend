@@ -102,6 +102,15 @@ export class usersManagers {
         }
     }
 
+    async deleteUserbyTime() {
+        try {
+            const resp = await us.deleteUserbyTimeService()
+            return resp
+        } catch (err) {
+            console.log(`Function getUserbyId: ${err}`)
+        }
+    }
+    
     async deleteUserbyId(uid) {
         try {
             const resp = await us.deleteUserbyIdService(uid)
