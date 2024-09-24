@@ -26,7 +26,7 @@ const config = {
     TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
     MODE: process.env.MODE,
-    PAGE_LINK: process.env.MODE === "prod"? process.env.CORS:"https//localhost:5173"
+    PAGE_LINK: process.env.MODE === "prod"? process.env.CORS:"http://localhost:5173"
 }
 
 
