@@ -64,7 +64,12 @@ if (cluster.isPrimary) {
 
         app.use(express.json())
         app.use(express.urlencoded({ extended: true }))
-        app.use(cors({ origin: "https://boost-music.netlify.app/", methods: "GET,POST,PUT,DELETE" }));
+        app.use(cors({
+            origin: config.PAGE_LINK,
+            credentials: true,
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+            allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization', 'X-Request-With'],
+        }));
 
         // using express-sesion to handle users acces
         app.use(session({
