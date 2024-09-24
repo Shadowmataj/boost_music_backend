@@ -79,16 +79,10 @@ routes.get("/ghlogin", passport.authenticate("ghlogin", { scope: ["user:email"] 
 routes.get("/ghlogincallback", passport.authenticate("ghlogin", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
 
     try {
-        req.session.user = req.user
-        await um.updateLastLogin(req.session.user._id, "LOGIN")
-        req.session.save(err => {
-            if (err) {
-                req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
-                return res.status(500).send({ origin: config.SERVER, payload: null, error: err.message });
-            }
-            res.redirect("/views/profile")
-        })
+        const token = createToken(req.user, "24h")
+        await um.updateLastLogin(req.user._id, "LOGIN")
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
+        res.status(200).send({ status: "OK", payload: req.user, token: token, cookieName: "boostCookie", maxAge: 86400 })
     }
     catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
@@ -102,16 +96,11 @@ routes.get("/ggllogin", passport.authenticate("ggllogin", { scope: ["profile", "
 routes.get("/gglogincallback", passport.authenticate("ggllogin", { failureRedirect: `/views/login?error=${encodeURI("usuario o clave no válidos")}` }), async (req, res) => {
 
     try {
-        req.session.user = req.user
+        
         await um.updateLastLogin(req.session.user._id, "LOGIN")
-        req.session.save(err => {
-            if (err) {
-                req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
-                return res.status(500).send({ status: "OK", payload: null, error: err.message });
-            }
-            res.redirect("/views/profile")
-        })
+        const token = createToken(req.user, "24h")
         req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
+        res.status(200).send({ status: "OK", payload: req.user, token: token, cookieName: "boostCookie", maxAge: 86400 })
     }
     catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err}`)
