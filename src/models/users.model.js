@@ -3,9 +3,10 @@ import mongoosePaginate from "mongoose-paginate-v2"
 
 mongoose.pluralize(null);
 
+// Mongo collection name.
 const collection = 'users_complete';
-// const collection = 'users_aggregate';
 
+// Create the carts schema.
 const schema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -18,8 +19,11 @@ const schema = new mongoose.Schema({
     lastConnection: { type: String, required: false}
 
 })
+
+// Set de paginate plugin.
 schema.plugin(mongoosePaginate)
 
+// Compile the carts model.
 const model = mongoose.model(collection, schema);
 
 export default model;

@@ -8,6 +8,7 @@ import { usersManagers } from "../controller/users.manager.js";
 import { createHash, createToken, isValidPassword, verifyRequiredBody, verifyToken } from "../services/utils.js";
 
 const routes = Router()
+
 const um = new usersManagers()
 initAuthStrategies()
 
@@ -15,7 +16,6 @@ routes.post("/login", verifyRequiredBody(["email", "password"]), async (req, res
 
     try {
         const { email, password } = req.body
-
         const options = { email: email }
         const user = await um.findUser(options)
 
@@ -174,7 +174,6 @@ routes.post("/passwordchange/:prid", async (req, res) => {
 routes.get("/current", verifyToken, async (req, res) => {
     try {
         if (req.user) {
-            console.log(req.user)
             const filteredUser = await um.usersDTO(req.user)
             req.logger.info(`${new moment().format()} ${req.method} auth${req.url}`)
             return res.status(200).send({ status: "OK", payload: filteredUser })
@@ -184,7 +183,6 @@ routes.get("/current", verifyToken, async (req, res) => {
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} auth${req.url} ${err.message}`)
         res.status(400).send({ status: "ERROR", error: err.message })
-
     }
 })
 

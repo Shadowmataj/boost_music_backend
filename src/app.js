@@ -26,52 +26,60 @@ import errorsHandler from "./services/errors.handler.js"
 import addLogger from "./services/logger.js"
 import { cpus } from "os"
 
+//Checking if the process is a primary.
 if (cluster.isPrimary) {
     // initializing 8 instances cluster 
-    for (let i = 0; i < 1; i++) cluster.fork()
-
+    for (let i = 0; i < cpus().length; i++) cluster.fork()
+        
+    // Identify if a worker process has an error.
     cluster.on('error', (err) => {
         console.error('Child process encountered an error:', err);
     });
 
+    // If the a worker process fails, it spawn a new worker process. 
     cluster.on("exit", (worker, code, signal) => {
-
-        console.log(`Se cayó la instancia ${worker.process.pid}`)
+        console.log(`worker ${worker.process.pid} died`)
         cluster.fork()
     })
 } else {
     try {
+        //Create the aplication.
         const app = express()
-        const fileStorage = fileStore(session)
-
+        
         console.log("Persistencia a MONGO")
         const { default: MongoSingleton } = await import("./services/mongo.singleton.js")
         await MongoSingleton.getInstance()
-
+        
+        //Binds and listens for connections on the specified host and port. This method is identical to Node’s http.Server.listen().
         const httpServer = app.listen(config.PORT, async () => {
-
             console.log(`App activa en el puerto ${config.PORT} (PID: ${process.pid})`)
         })
-
+        //  Create an instance using socket.io.
         const socketServer = new Server(httpServer)
         // stablish this variable to use it on another module
         app.set("socketServer", socketServer)
-
-        //handlebars configuration
+        
+        // Handlebars configuration
         app.engine("handlebars", handlebars.engine())
         app.set("views", `${config.DIRNAME}/views`)
         app.set("view engine", "handlebars")
-
+        
+        // Parse incoming requests with JSON payloads
         app.use(express.json())
+        // Parse incoming requests with urlencoded payloads.
         app.use(express.urlencoded({ extended: true }))
-        app.use(cors({
+        
+        //
+        const corsOptions = {
             origin: config.PAGE_LINK,
             credentials: true,
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization', 'X-Request-With'],
-        }));
-
-        // using express-sesion to handle users acces
+        }
+        app.use(cors(corsOptions));
+        
+        // using express-session to handle users acces
+        const fileStorage = fileStore(session)
         app.use(session({
             store: new fileStorage({ path: "./sessions", ttl: 100, retries: 0 }),
             secret: config.SECRET,
@@ -79,12 +87,14 @@ if (cluster.isPrimary) {
             saveUninitialized: true
         }))
 
-
+        // Configure passport middleware, includes sessions.
         app.use(passport.initialize())
         app.use(passport.session())
 
-        // end points configuration
+        //Adding logger.
         app.use(addLogger)
+        
+        // End points configuration using router.
         app.use("/logger", loggerRoutes)
         app.use("/api/products", productsRoutes)
         app.use("/api/carts", cartRoutes)
@@ -95,10 +105,12 @@ if (cluster.isPrimary) {
         app.use("/auth", authRoutes)
         app.use("/api/users", usersRoutes)
 
-        // access to static content
+        // Access to static content
         app.use('/static', express.static(`${config.DIRNAME}/public`));
+        // Errors handler middleware: every request. 
         app.use(errorsHandler)
 
+        //Setting api/docs endpoint using swagger.
         const swaggerOptions = {
             definition: {
                 openapi: '3.1.0',
@@ -111,50 +123,6 @@ if (cluster.isPrimary) {
         };
         const specs = swaggerJsdoc(swaggerOptions);
         app.use('/api/docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
-
-
-        // listening the connection from a new socket
-        socketServer.on("connection", socket => {
-            console.log(`Nuevo cliente conectado ${socket.id}`)
-            // the first contact between client and server
-            socket.on("handshake", data => {
-                console.log(data)
-            })
-
-            socket.on("newMessage", async data => {
-                try {
-                    mesagesModel.insertMany(data)
-                    socket.broadcast.emit("updateChat", data)
-                } catch (err) {
-                    console.log(`${err}`)
-                }
-            })
-
-            socket.on("addProduct", async data => {
-                try {
-                    const cart = await cartsModel.findById(data.cid)
-                    const cartProducts = [...cart.products]
-
-                    await productModels.exists({ _id: data.pid })
-                    const productIndex = cartProducts.findIndex(itm => itm.id === data.pid)
-                    if (productIndex !== -1) {
-                        cartProducts[productIndex].quantity = cartProducts[productIndex].quantity + 1
-                    } else {
-                        const newItem = {
-                            id: data.pid,
-                            quantity: 1
-                        }
-                        cartProducts.push(newItem)
-                    }
-
-                    await cartsModel.findByIdAndUpdate(data.cid, { products: cartProducts })
-                    socket.emit("productAdded", { status: "El producto se ha agregado al carrito." })
-                } catch (err) {
-                    console.log(`${err}`)
-                    socket.emit("productNotAdded", { status: "El producto no se ha podido agregar al carrito." })
-                }
-            })
-        })
     } catch (err) {
         console.log(`Backend: error al inicializar ${err.message}`)
     }

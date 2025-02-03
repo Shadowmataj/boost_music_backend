@@ -83,7 +83,7 @@ productsRouter.post("/", verifyToken, filterAuth(["admin", "premium"]), async (r
 
         if (resp.status === "OK") {
             const productsList = await pm.getProducts(0)
-            socketServer.emit("update_for_all", productsList)
+            socketServer.emit("addProduct", productsList)
             req.logger.info(`${new moment().format()} ${req.method} api/products${req.url}`)
             res.status(200).send({ status: resp.payload })
         } else if (resp.status === "ERROR") {

@@ -3,8 +3,10 @@ import mongoosePaginate from "mongoose-paginate-v2"
 
 mongoose.pluralize(null)
 
+// Mongo collection name.
 const collection = "products"
 
+// Create the carts schema.
 const schema = new mongoose.Schema({
     title: {type:String, require: true},
     description: {type:String, require: true},
@@ -17,8 +19,10 @@ const schema = new mongoose.Schema({
     owner: { type: String, default: "admin" }
 })
 
+// Set de paginate plugin.
 schema.plugin(mongoosePaginate)
 
+// Compile the carts model.
 const model = mongoose.model(collection,schema)
 
 export default model

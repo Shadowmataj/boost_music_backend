@@ -26,7 +26,7 @@ const config = {
     TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
     MODE: process.env.MODE,
-    PAGE_LINK: process.env.MODE === "prod"? process.env.CORS:"http://localhost:5173"
+    PAGE_LINK: process.env.MODE === "prod"? process.env.CORS : "*"
 }
 
 
@@ -49,7 +49,5 @@ export const errorsDictionary = {
     EMPTY_CART_ERROR: { code: 14, status: 400, message: "El carrito de compra está vacío." },
     USER_CREATION_ERROR: { code: 15, status: 400, message: "El usuario ya está registrado." },
 }
-
-
 
 export default config

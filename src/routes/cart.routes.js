@@ -48,8 +48,8 @@ cartRouter.get("/:cid", verifyToken, async (req, res) => {
 cartRouter.get('/mail/sendmail', async (req, res) => {
     try {
         let confirmation = await transport.sendMail({
-            from: "christianmataj1@gmail.com",
-            to: "mata_juarez@hotmail.com",
+            from: config.GMAIL_MAIL,
+            to: "add_test_email",
             subject: "Prueba pruebosa probadora",
             html: `
             <h1>Prueba 01</h1>

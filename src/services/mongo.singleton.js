@@ -12,6 +12,10 @@ export default class MongoSingleton {
         await mongoose.connect(config.MONGODB_URI);
     }
 
+    /**
+     * 
+     * @returns {object} returns the instance created/recovered.
+     */
     static getInstance() {
         if (!this.#instance) {
             this.#instance = new MongoSingleton();
