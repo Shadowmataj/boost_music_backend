@@ -26,7 +26,7 @@ import addLogger from "./services/logger.js"
 //Checking if the process is a primary.
 if (cluster.isPrimary) {
     // initializing 8 instances cluster 
-    for (let i = 0; i < cpus().length; i++) cluster.fork()
+    for (let i = 0; i < 1; i++) cluster.fork()
         
     // Identify if a worker process has an error.
     cluster.on('error', (err) => {
