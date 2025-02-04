@@ -74,7 +74,6 @@ productsRouter.get("/faker/:qty", async (req, res) => {
 //endpoint to add new products. 
 productsRouter.post("/", verifyToken, filterAuth(["admin", "premium"]), async (req, res) => {
     const socketServer = req.app.get("socketServer")
-    console.log(req.body)
     const { title, description, price, thumbnails, code, stock, status, category } = req.body
     try {
         const item = await pm.productDTO(title, description, thumbnails, price, category, stock, code, status)
@@ -93,13 +92,6 @@ productsRouter.post("/", verifyToken, filterAuth(["admin", "premium"]), async (r
     } catch (err) {
         req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
     }
-    // FileSystem
-    // if (resp) {
-    //     res.status(200).send({ status: "El producto ha sido agregado exitosamente" })
-    //     socketServer.emit("update_db_products", "Se agregó un elemento a la base de datos.")
-    // } else {
-    //     res.status(400).send({ ERROR: `El producto con ${code} ya existe.` })
-    // }
 })
 
 // endpoint to update a specific product
@@ -122,11 +114,7 @@ productsRouter.put("/:pid", verifyToken, filterAuth(["admin", "premium"]), async
         req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
         res.status(400).send({ status: "ERROR", type: `${err}` })
     }
-    // FileSystem
-    // resp ?
-    // res.status(200).send({ status: `El producto con ID ${productId} ha sido actualizado exitosamente` }) :
-    // res.status(400).send({ ERROR: `El producto con ID ${productId} no existe.` })
-})
+    })
 
 // Endpoint to delete a specifc product using the id
 productsRouter.delete("/:pid", verifyToken, filterAuth(["admin", "premium"]), async (req, res) => {
@@ -150,14 +138,6 @@ productsRouter.delete("/:pid", verifyToken, filterAuth(["admin", "premium"]), as
         req.logger.error(`${new moment().format()} ${req.method} api/products${req.url} ${err}`)
         res.status(400).send({ status: "ERROR", type: `${err}` })
     }
-    // FileSystem
-    // if (resp) {
-    //     res.status(200).send({ status: `El producto con ID ${productId} ha sido eliminado exitosamente` })
-    //     socketServer.emit("update_db_products", "Se eliminó un elemento de la base de datos.")
-
-    // } else {
-    //     res.status(400).send({ ERROR: `El producto con ID ${productId} no existe.` })
-    // }
-})
+    })
 
 export default productsRouter

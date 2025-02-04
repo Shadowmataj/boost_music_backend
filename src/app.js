@@ -119,7 +119,7 @@ if (cluster.isPrimary) {
                     description: 'Esta documentación cubre toda la API habilitada para Boost Music',
                 },
             },
-            apis: ['./src/docs/**/*.yaml'], // todos los archivos de configuración de rutas estarán aquí
+            apis: ['./src/docs/**/*.yaml'], // all the files about routes configuration will be here
         };
         const specs = swaggerJsdoc(swaggerOptions);
         app.use('/api/docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));

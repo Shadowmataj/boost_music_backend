@@ -63,7 +63,6 @@ routes.post("/products", uploader.single("documentsImage"), async (req, res) => 
 
 routes.put("/:cid", verifyToken, filterAuth(["admin"]), async (req, res) => {
     const id = req.params.cid
-    console.log(req.body)
     const { firstName, lastName, email, role } = req.body
     let resp = undefined
     try {
@@ -79,10 +78,6 @@ routes.put("/:cid", verifyToken, filterAuth(["admin"]), async (req, res) => {
         req.logger.error(`${new moment().format()} ${req.method} api/users${req.url} ${err}`)
         res.status(400).send({ status: "ERROR", type: `${err}` })
     }
-    // FileSystem
-    // resp ?
-    // res.status(200).send({ status: `El producto con ID ${productId} ha sido actualizado exitosamente` }) :
-    // res.status(400).send({ ERROR: `El producto con ID ${productId} no existe.` })
 })
 
 routes.put("/premium/:uid", filterAuth(["premium"]), async (req, res) => {
