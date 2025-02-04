@@ -9,10 +9,8 @@ import { Server } from "socket.io"
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUiExpress from 'swagger-ui-express'
 
+import { cpus } from "os"
 import config from "./config.js"
-import cartsModel from "./models/cart.models.js"
-import mesagesModel from "./models/messages.models.js"
-import productModels from "./models/products.models.js"
 import artistsRoutes from "./routes/artists.routes.js"
 import authRoutes from "./routes/auth.routes.js"
 import brandsRoutes from "./routes/brands.routes.js"
@@ -24,7 +22,6 @@ import usersRoutes from "./routes/users.routes.js"
 import viewRoutes from "./routes/view.routes.js"
 import errorsHandler from "./services/errors.handler.js"
 import addLogger from "./services/logger.js"
-import { cpus } from "os"
 
 //Checking if the process is a primary.
 if (cluster.isPrimary) {
@@ -119,7 +116,7 @@ if (cluster.isPrimary) {
                     description: 'Esta documentación cubre toda la API habilitada para Boost Music',
                 },
             },
-            apis: ['./src/docs/**/*.yaml'], // all the files about routes configuration will be here
+            apis: ['./src/docs/**/*.yaml'], // all the files about routes configuration will be here.
         };
         const specs = swaggerJsdoc(swaggerOptions);
         app.use('/api/docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
