@@ -1,6 +1,16 @@
 # Proyecto Backend - Boost Music
 
-Este es el backend para el proyecto Boost Music. Funciona en conjunto con el repositorio frontend que se puede encontrar en [https://github.com/Shadowmataj/boost_music_frontend](https://github.com/Shadowmataj/boost_music_frontend).
+Este es el backend para el proyecto Boost Music, una tienda de música en línea. Funciona en conjunto con el repositorio frontend que se puede encontrar en [https://github.com/Shadowmataj/boost_music_frontend](https://github.com/Shadowmataj/boost_music_frontend).
+
+## Descripción
+
+El backend de Boost Music está diseñado para manejar todas las operaciones de una tienda de comercio electrónico de música. Las características principales incluyen:
+
+*   **Gestión de usuarios:** Registro, inicio y cierre de sesión de usuarios.
+*   **Gestión de inventario:** Permite la administración de productos, incluyendo la creación, actualización y eliminación de artículos del catálogo.
+*   **Control de stock:** Realiza validaciones en tiempo real para asegurar la disponibilidad de los productos antes de procesar una compra.
+*   **Carrito de compras:** Funcionalidad completa para que los usuarios puedan agregar, modificar y eliminar productos de su carrito.
+*   **Procesamiento de pedidos:** Lógica para la creación y seguimiento de los pedidos realizados por los clientes.
 
 ## Diagrama de Arquitectura
 
